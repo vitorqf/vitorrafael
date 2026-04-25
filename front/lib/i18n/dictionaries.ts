@@ -35,6 +35,13 @@ export const dictionaries = {
       ctaPrimary: "View projects",
       ctaSecondary: "Download CV",
       currentlyBuilding: "Currently building",
+      focusKicker: "Portfolio index",
+      focusTitle: "Systems I tend to improve",
+      focusItems: [
+        "Frontend architecture under real traffic",
+        "Mobile products with native constraints",
+        "Backend flows where retries and concurrency matter",
+      ],
     },
     metrics: {
       eyebrow: "Impact",
@@ -49,6 +56,8 @@ export const dictionaries = {
         "A mix of frontend architecture, mobile engineering and backend reliability - chosen to show range, not volume.",
       readCaseStudy: "Read case study",
       visit: "Visit",
+      editorialNote:
+        "Each case is framed by the engineering constraint, the system boundary, and the outcome it moved.",
     },
     skills: {
       eyebrow: "Capabilities",
@@ -108,7 +117,11 @@ export const dictionaries = {
       backProjects: "Back to projects",
       backBlog: "Back to writing",
       caseStudy: "Case study",
+      caseLabel: "Case",
       overview: "Overview",
+      problem: "Problem",
+      systemFocus: "System focus",
+      outcome: "Outcome",
       highlights: "Highlights",
       stack: "Stack",
       openProject: "Open project",
@@ -138,6 +151,13 @@ export const dictionaries = {
       ctaPrimary: "Ver projetos",
       ctaSecondary: "Baixar CV",
       currentlyBuilding: "Construindo agora",
+      focusKicker: "Indice do portfolio",
+      focusTitle: "Sistemas que costumo melhorar",
+      focusItems: [
+        "Arquitetura frontend sob trafego real",
+        "Produtos mobile com restricoes nativas",
+        "Fluxos backend onde retries e concorrencia importam",
+      ],
     },
     metrics: {
       eyebrow: "Impacto",
@@ -152,6 +172,8 @@ export const dictionaries = {
         "Uma combinacao de arquitetura de frontend, engenharia mobile e confiabilidade no backend - escolhidos pela diversidade, nao pelo volume.",
       readCaseStudy: "Ler case",
       visit: "Visitar",
+      editorialNote:
+        "Cada case parte da restricao de engenharia, do limite do sistema e do resultado que moveu.",
     },
     skills: {
       eyebrow: "Capacidades",
@@ -211,7 +233,11 @@ export const dictionaries = {
       backProjects: "Voltar para projetos",
       backBlog: "Voltar para artigos",
       caseStudy: "Case",
+      caseLabel: "Case",
       overview: "Visao geral",
+      problem: "Problema",
+      systemFocus: "Foco do sistema",
+      outcome: "Resultado",
       highlights: "Destaques",
       stack: "Stack",
       openProject: "Abrir projeto",

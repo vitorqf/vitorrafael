@@ -10,61 +10,75 @@ export function Hero() {
 
   return (
     <section id="top" className="relative overflow-hidden border-b border-border/60">
-      <div aria-hidden className="pointer-events-none absolute inset-0 grid-bg opacity-[0.35] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_70%)]" />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[42rem] -translate-x-1/2 rounded-full bg-accent/15 blur-3xl"
+        className="pointer-events-none absolute inset-0 grid-bg opacity-[0.22] [mask-image:linear-gradient(to_bottom,black,transparent_72%)]"
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 md:px-6 md:pb-28 md:pt-24">
-        {/* Availability */}
-        <div className="flex max-w-full flex-wrap items-center gap-2">
-          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent/70 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            {t.hero.availability}
-          </span>
-          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-            {t.hero.timezone}
-          </span>
+      <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-14 md:px-6 md:pb-28 md:pt-24">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+          <div>
+            <div className="flex max-w-full flex-wrap items-center gap-2">
+              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border/60 bg-card/55 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent/70 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                </span>
+                {t.hero.availability}
+              </span>
+              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-border/60 bg-card/55 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+                {t.hero.timezone}
+              </span>
+            </div>
+
+            <div className="mt-12 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="h-px w-10 bg-border" aria-hidden />
+              {profile.name}
+            </div>
+
+            <h1 className="mt-5 max-w-5xl text-balance font-sans text-[2.65rem] font-semibold leading-[0.98] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[5.35rem]">
+              {t.hero.headline}
+            </h1>
+
+            <p className="mt-7 max-w-2xl text-pretty text-base leading-8 text-muted-foreground md:text-lg">
+              {t.hero.description}
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg" className="h-11 rounded-full px-5">
+                <a href={`/${locale}#projects`}>
+                  {t.hero.ctaPrimary}
+                  <ArrowDown className="ml-1 h-4 w-4" aria-hidden />
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5">
+                <a href={profile.resumeUrl} download>
+                  <Download className="mr-1 h-4 w-4" aria-hidden />
+                  {t.hero.ctaSecondary}
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          <aside className="border-t border-border/60 pt-6 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+            <div className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
+              {t.hero.focusKicker}
+            </div>
+            <h2 className="mt-3 text-balance text-xl font-semibold leading-tight tracking-tight">
+              {t.hero.focusTitle}
+            </h2>
+            <ol className="mt-5 flex flex-col gap-4">
+              {t.hero.focusItems.map((item, index) => (
+                <li key={item} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-t border-border/60 pt-4">
+                  <span className="font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="text-sm leading-6 text-muted-foreground">{item}</span>
+                </li>
+              ))}
+            </ol>
+          </aside>
         </div>
 
-        {/* Name */}
-        <div className="mt-10 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          <span className="h-px w-8 bg-border" aria-hidden />
-          {profile.name}
-        </div>
-
-        {/* Headline */}
-        <h1 className="mt-4 max-w-4xl text-balance font-sans text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl md:text-6xl lg:text-[4.25rem]">
-          {t.hero.headline}
-        </h1>
-
-        {/* Description */}
-        <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg">
-          {t.hero.description}
-        </p>
-
-        {/* CTAs */}
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Button asChild size="lg" className="h-11 rounded-full px-5">
-            <a href={`/${locale}#projects`}>
-              {t.hero.ctaPrimary}
-              <ArrowDown className="ml-1 h-4 w-4" aria-hidden />
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5">
-            <a href={profile.resumeUrl} download>
-              <Download className="mr-1 h-4 w-4" aria-hidden />
-              {t.hero.ctaSecondary}
-            </a>
-          </Button>
-        </div>
-
-        {/* Socials */}
-        <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+        <div className="mt-12 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border/60 pt-6 text-sm text-muted-foreground">
           <a
             href={profile.socials.github.href}
             target="_blank"

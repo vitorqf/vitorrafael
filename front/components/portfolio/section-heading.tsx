@@ -19,17 +19,17 @@ export function SectionHeading({ eyebrow, title, description, align = "left", cl
     >
       <div
         className={cn(
-          "inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground",
+          "inline-flex items-center gap-3 font-mono text-[0.68rem] font-medium uppercase tracking-[0.22em] text-muted-foreground",
         )}
       >
-        <span className="h-px w-8 bg-border" aria-hidden />
+        <span className="h-px w-10 bg-border" aria-hidden />
         {eyebrow}
       </div>
-      <h2 className="mt-4 text-balance font-sans text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+      <h2 className="mt-5 text-balance font-sans text-3xl font-semibold leading-[1.05] tracking-[-0.035em] text-foreground md:text-5xl">
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-pretty leading-relaxed text-muted-foreground md:text-lg">{description}</p>
+        <p className="mt-5 text-pretty leading-8 text-muted-foreground md:text-lg">{description}</p>
       ) : null}
     </div>
   )

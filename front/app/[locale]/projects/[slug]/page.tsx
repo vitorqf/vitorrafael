@@ -79,16 +79,37 @@ export default async function ProjectPage({
               <div className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 {project.category[locale]} / {project.year}
               </div>
-              <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
+              <h1 className="mt-5 max-w-4xl text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.04em] md:text-7xl">
                 {project.title}
               </h1>
-              <p className="mt-6 max-w-3xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg">
+              <p className="mt-7 max-w-3xl text-pretty text-base leading-8 text-muted-foreground md:text-lg">
                 {project.summary[locale]}
               </p>
 
+              <dl className="mt-12 grid gap-5 border-y border-border/60 py-7 md:grid-cols-3">
+                <div>
+                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                    {t.pages.problem}
+                  </dt>
+                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.problem[locale]}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                    {t.pages.systemFocus}
+                  </dt>
+                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.systemFocus[locale]}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                    {t.pages.outcome}
+                  </dt>
+                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.outcome[locale]}</dd>
+                </div>
+              </dl>
+
               <section className="mt-12">
-                <h2 className="text-xl font-semibold tracking-tight">{t.pages.highlights}</h2>
-                <ul className="mt-5 grid gap-3">
+                <h2 className="text-2xl font-semibold tracking-[-0.025em]">{t.pages.highlights}</h2>
+                <ul className="mt-6 grid gap-4">
                   {project.highlights[locale].map((highlight) => (
                     <li key={highlight} className="flex gap-3 text-sm leading-relaxed text-foreground/90">
                       <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
@@ -99,7 +120,7 @@ export default async function ProjectPage({
               </section>
             </div>
 
-            <Card className="border-border/60 bg-card/60 p-6">
+            <Card className="sticky top-20 border-border/60 bg-card/50 p-6">
               <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {t.pages.stack}
               </h2>
