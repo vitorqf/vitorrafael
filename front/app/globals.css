@@ -110,4 +110,36 @@
     background-clip: text;
     color: transparent;
   }
+  .scroll-reveal {
+    opacity: 0;
+    transition:
+      opacity 520ms ease,
+      transform 520ms ease;
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .scroll-reveal[data-reveal-variant='lift'] {
+    transform: translate3d(0, 10px, 0);
+  }
+  .scroll-reveal[data-reveal-variant='fade'] {
+    transform: translate3d(0, 6px, 0);
+  }
+  .scroll-reveal[data-reveal-variant='scale'] {
+    transform: translate3d(0, 8px, 0);
+  }
+  .scroll-reveal[data-reveal-variant='clip'] {
+    transform: translate3d(0, 6px, 0);
+  }
+  .scroll-reveal[data-reveal-state='visible'] {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      will-change: auto;
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { ScrollReveal } from "./scroll-reveal"
 
 type SectionHeadingProps = {
   eyebrow: string
@@ -10,12 +11,9 @@ type SectionHeadingProps = {
 
 export function SectionHeading({ eyebrow, title, description, align = "left", className }: SectionHeadingProps) {
   return (
-    <div
-      className={cn(
-        "max-w-2xl",
-        align === "center" && "mx-auto text-center",
-        className,
-      )}
+    <ScrollReveal
+      variant="fade"
+      className={cn("max-w-2xl", align === "center" && "mx-auto text-center", className)}
     >
       <div
         className={cn(
@@ -31,6 +29,6 @@ export function SectionHeading({ eyebrow, title, description, align = "left", cl
       {description ? (
         <p className="mt-5 text-pretty leading-8 text-muted-foreground md:text-lg">{description}</p>
       ) : null}
-    </div>
+    </ScrollReveal>
   )
 }

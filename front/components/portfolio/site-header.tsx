@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { ArrowUpRight, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "./providers"
+import { SectionLink } from "./section-link"
 import { ThemeToggle } from "./theme-toggle"
 import { LanguageSwitcher } from "./language-switcher"
 import { profile } from "@/lib/data/profile"
@@ -39,7 +39,7 @@ export function SiteHeader() {
       )}
     >
       <div className="relative mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <Link href={`/${locale}#top`} className="group flex items-center gap-2">
+        <SectionLink sectionId="top" locale={locale} className="group flex items-center gap-2">
           <span
             aria-hidden
             className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card font-mono text-xs font-semibold text-accent"
@@ -49,17 +49,18 @@ export function SiteHeader() {
           <span className="hidden text-sm font-medium tracking-tight md:inline">
             {profile.name}
           </span>
-        </Link>
+        </SectionLink>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
           {sections.map((s) => (
-            <Link
+            <SectionLink
               key={s.id}
-              href={`/${locale}#${s.id}`}
+              sectionId={s.id}
+              locale={locale}
               className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               {t.nav[s.key]}
-            </Link>
+            </SectionLink>
           ))}
         </nav>
 
@@ -93,14 +94,15 @@ export function SiteHeader() {
         <div className="border-t border-border/60 bg-background/95 backdrop-blur md:hidden">
           <nav aria-label="Mobile" className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
             {sections.map((s) => (
-              <Link
+              <SectionLink
                 key={s.id}
-                href={`/${locale}#${s.id}`}
-                onClick={() => setOpen(false)}
+                sectionId={s.id}
+                locale={locale}
+                onNavigate={() => setOpen(false)}
                 className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 {t.nav[s.key]}
-              </Link>
+              </SectionLink>
             ))}
             <div className="mt-2 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
               <LanguageSwitcher />

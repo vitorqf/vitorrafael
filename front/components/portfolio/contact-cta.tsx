@@ -3,15 +3,16 @@
 import { ArrowUpRight, Download, Linkedin, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "./providers"
+import { ScrollReveal } from "./scroll-reveal"
 import { profile } from "@/lib/data/profile"
 
 export function ContactCta() {
   const { t } = useLocale()
 
   return (
-    <section id="contact" className="scroll-mt-20 border-b border-border/60 bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
-        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/60 p-8 md:p-14">
+    <section id="contact" className="flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 items-center border-b border-border/60 bg-background">
+      <div className="mx-auto w-full max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <ScrollReveal variant="fade" className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/60 p-8 md:p-14">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 grid-bg opacity-[0.25] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
@@ -56,7 +57,7 @@ export function ContactCta() {
               </Button>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   )

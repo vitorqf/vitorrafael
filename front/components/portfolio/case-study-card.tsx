@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ArrowUpRight, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ScrollReveal } from "@/components/portfolio/scroll-reveal"
 import { cn } from "@/lib/utils"
 import type { Dictionary, Locale } from "@/lib/i18n/dictionaries"
 import type { Project } from "@/lib/data/projects"
@@ -31,13 +32,9 @@ export function CaseStudyCard({
   const caseUrl = `/${locale}/projects/${project.slug}`
 
   return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-lg border border-border/70 bg-card/45 transition-colors hover:border-accent/50",
-        className,
-      )}
-    >
-      <div className="grid min-h-full gap-0 lg:grid-cols-[8rem_minmax(0,1fr)_18rem]">
+    <ScrollReveal delay={Math.min(index * 70, 210)} variant="fade" className={className}>
+      <article className="group relative overflow-hidden rounded-lg border border-border/70 bg-card/45 transition-colors hover:border-accent/50">
+        <div className="grid min-h-full gap-0 lg:grid-cols-[8rem_minmax(0,1fr)_18rem]">
         <div className="border-b border-border/60 p-5 lg:border-b-0 lg:border-r lg:p-6">
           <div className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
             {labels.pages.caseLabel}
@@ -117,7 +114,8 @@ export function CaseStudyCard({
             ) : null}
           </div>
         </aside>
-      </div>
-    </article>
+        </div>
+      </article>
+    </ScrollReveal>
   )
 }

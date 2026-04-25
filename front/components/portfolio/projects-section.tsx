@@ -9,8 +9,8 @@ export function ProjectsSection() {
   const { t, locale } = useLocale()
 
   return (
-    <section id="projects" className="scroll-mt-20 border-b border-border/60 bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+    <section id="projects" className="flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 items-center border-b border-border/60 bg-background">
+      <div className="mx-auto w-full max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(18rem,0.55fr)] md:items-end">
           <SectionHeading
             eyebrow={t.projects.eyebrow}
