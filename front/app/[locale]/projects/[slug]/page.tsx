@@ -63,6 +63,12 @@ export default async function ProjectPage({
     notFound()
   }
 
+  const projectStack =
+    project.stack.length > 0
+      ? project.stack
+      : Array.from(new Set(project.caseStudies.flatMap((caseStudy) => caseStudy.stack)))
+  const categoryLine = [project.category[locale], project.year].filter(Boolean).join(" / ")
+
   return (
     <PortfolioShell>
       <article className="border-b border-border/60 bg-background">
@@ -77,7 +83,7 @@ export default async function ProjectPage({
           <div className="grid gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
             <div>
               <div className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {project.category[locale]} / {project.year}
+                {categoryLine}
               </div>
               <h1 className="mt-5 max-w-4xl text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.04em] md:text-7xl">
                 {project.title}
@@ -86,37 +92,114 @@ export default async function ProjectPage({
                 {project.summary[locale]}
               </p>
 
-              <dl className="mt-12 grid gap-5 border-y border-border/60 py-7 md:grid-cols-3">
-                <div>
-                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
-                    {t.pages.problem}
-                  </dt>
-                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.problem[locale]}</dd>
-                </div>
-                <div>
-                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
-                    {t.pages.systemFocus}
-                  </dt>
-                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.systemFocus[locale]}</dd>
-                </div>
-                <div>
-                  <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
-                    {t.pages.outcome}
-                  </dt>
-                  <dd className="mt-3 text-sm leading-6 text-foreground/85">{project.outcome[locale]}</dd>
-                </div>
-              </dl>
-
               <section className="mt-12">
-                <h2 className="text-2xl font-semibold tracking-[-0.025em]">{t.pages.highlights}</h2>
-                <ul className="mt-6 grid gap-4">
-                  {project.highlights[locale].map((highlight) => (
-                    <li key={highlight} className="flex gap-3 text-sm leading-relaxed text-foreground/90">
-                      <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
-                      <span>{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
+                <h2 className="text-2xl font-semibold tracking-[-0.025em]">{t.pages.caseStudies}</h2>
+
+                {project.caseStudies.length ? (
+                  <div className="mt-7 space-y-6">
+                    {project.caseStudies.map((caseStudy, index) => (
+                      <Card
+                        key={`${caseStudy.slug}-${index}`}
+                        id={caseStudy.slug}
+                        className="border-border/60 bg-card/45 p-6 md:p-7"
+                      >
+                        <div className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                          {t.pages.caseLabel} {String(index + 1).padStart(2, "0")}
+                        </div>
+                        <h3 className="mt-3 text-balance text-2xl font-semibold leading-tight tracking-tight">
+                          {caseStudy.title[locale]}
+                        </h3>
+                        <p className="mt-4 text-pretty text-sm leading-7 text-muted-foreground md:text-[0.95rem]">
+                          {caseStudy.summary[locale]}
+                        </p>
+
+                        <dl className="mt-8 grid gap-5 border-y border-border/60 py-6 md:grid-cols-3">
+                          <div>
+                            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                              {t.pages.problem}
+                            </dt>
+                            <dd className="mt-2 text-sm leading-6 text-foreground/85">
+                              {caseStudy.problem[locale]}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                              {t.pages.systemFocus}
+                            </dt>
+                            <dd className="mt-2 text-sm leading-6 text-foreground/85">
+                              {caseStudy.systemFocus[locale]}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                              {t.pages.outcome}
+                            </dt>
+                            <dd className="mt-2 text-sm leading-6 text-foreground/85">
+                              {caseStudy.outcome[locale]}
+                            </dd>
+                          </div>
+                        </dl>
+
+                        {caseStudy.highlights[locale].length ? (
+                          <div className="mt-7">
+                            <h4 className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                              {t.pages.highlights}
+                            </h4>
+                            <ul className="mt-4 grid gap-3">
+                              {caseStudy.highlights[locale].map((highlight) => (
+                                <li
+                                  key={highlight}
+                                  className="flex gap-3 text-sm leading-relaxed text-foreground/90"
+                                >
+                                  <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
+                                  <span>{highlight}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+
+                        {caseStudy.body[locale].length ? (
+                          <div className="mt-7 space-y-3">
+                            {caseStudy.body[locale].map((paragraph, paragraphIndex) => (
+                              <p
+                                key={`${caseStudy.slug}-${paragraphIndex}`}
+                                className="text-sm leading-7 text-foreground/85"
+                              >
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        <div className="mt-7 flex flex-wrap gap-1.5">
+                          {caseStudy.stack.map((item) => (
+                            <Badge
+                              key={`${caseStudy.slug}-${item}`}
+                              variant="secondary"
+                              className="rounded-full border border-border/60 bg-background/40 px-2.5 py-0.5 font-mono text-[11px] font-normal text-muted-foreground"
+                            >
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        {caseStudy.externalUrl ? (
+                          <Button asChild className="mt-6 rounded-full" size="sm">
+                            <a href={caseStudy.externalUrl} target="_blank" rel="noreferrer">
+                              {t.pages.openProject}
+                              <ArrowUpRight className="ml-1 h-3.5 w-3.5" aria-hidden />
+                            </a>
+                          </Button>
+                        ) : null}
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="mt-6 border-border/60 bg-card/45 p-6 text-sm text-muted-foreground">
+                    {t.pages.noCaseStudies}
+                  </Card>
+                )}
               </section>
             </div>
 
@@ -125,7 +208,7 @@ export default async function ProjectPage({
                 {t.pages.stack}
               </h2>
               <div className="mt-5 flex flex-wrap gap-1.5">
-                {project.stack.map((item) => (
+                {projectStack.map((item) => (
                   <Badge
                     key={item}
                     variant="secondary"

@@ -79,10 +79,9 @@ export type ExperienceItem = {
   stack: string[]
 }
 
-export type Project = {
+export type CaseStudy = {
   slug: string
-  title: string
-  category: LocalizedString
+  title: LocalizedString
   summary: LocalizedString
   problem: LocalizedString
   systemFocus: LocalizedString
@@ -90,6 +89,18 @@ export type Project = {
   highlights: LocalizedStringArray
   body: LocalizedStringArray
   stack: string[]
+  externalUrl?: string
+  featured: boolean
+  order: number
+}
+
+export type Project = {
+  slug: string
+  title: string
+  category: LocalizedString
+  summary: LocalizedString
+  stack: string[]
+  caseStudies: CaseStudy[]
   externalUrl?: string
   accent: ProjectAccent
   year: string

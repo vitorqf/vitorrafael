@@ -55,6 +55,7 @@ export const dictionaries = {
       description:
         "A mix of frontend architecture, mobile engineering and backend reliability - chosen to show range, not volume.",
       readCaseStudy: "Read case study",
+      viewCaseStudies: "View case studies",
       visit: "Visit",
       editorialNote:
         "Each case is framed by the engineering constraint, the system boundary, and the outcome it moved.",
@@ -117,7 +118,9 @@ export const dictionaries = {
       backProjects: "Back to projects",
       backBlog: "Back to writing",
       caseStudy: "Case study",
+      caseStudies: "Case studies",
       caseLabel: "Case",
+      noCaseStudies: "Case studies are being prepared.",
       overview: "Overview",
       problem: "Problem",
       systemFocus: "System focus",
@@ -171,6 +174,7 @@ export const dictionaries = {
       description:
         "Uma combinacao de arquitetura de frontend, engenharia mobile e confiabilidade no backend - escolhidos pela diversidade, nao pelo volume.",
       readCaseStudy: "Ler case",
+      viewCaseStudies: "Ver cases",
       visit: "Visitar",
       editorialNote:
         "Cada case parte da restricao de engenharia, do limite do sistema e do resultado que moveu.",
@@ -233,7 +237,9 @@ export const dictionaries = {
       backProjects: "Voltar para projetos",
       backBlog: "Voltar para artigos",
       caseStudy: "Case",
+      caseStudies: "Cases",
       caseLabel: "Case",
+      noCaseStudies: "Cases em preparacao.",
       overview: "Visao geral",
       problem: "Problema",
       systemFocus: "Foco do sistema",

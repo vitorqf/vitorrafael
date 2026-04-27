@@ -5,6 +5,7 @@ import { dictionaries, type Dictionary, type Locale } from "@/lib/i18n/dictionar
 import { sanityClient } from "@/lib/sanity/client"
 import type {
   Article,
+  CaseStudy,
   ExperienceItem,
   LocalizedString,
   LocalizedStringArray,
@@ -36,16 +37,27 @@ type RawSiteSettings = {
   copy?: Record<string, unknown>
 } | null
 
-type RawProject = {
+type RawCaseStudy = {
   slug?: string
   title?: SanityLocalizedString
-  category?: SanityLocalizedString
   summary?: SanityLocalizedString
   problem?: SanityLocalizedString
   systemFocus?: SanityLocalizedString
   outcome?: SanityLocalizedString
   highlights?: SanityLocalizedStringArray
   body?: SanityLocalizedStringArray
+  stack?: string[]
+  externalUrl?: string
+  featured?: boolean
+  order?: number
+} | null
+
+type RawProject = {
+  slug?: string
+  title?: SanityLocalizedString
+  category?: SanityLocalizedString
+  summary?: SanityLocalizedString
+  caseStudies?: RawCaseStudy[]
   stack?: string[]
   externalUrl?: string
   accent?: Project["accent"]
@@ -128,11 +140,20 @@ const projectsQuery = groq`
       title,
       category,
       summary,
-      problem,
-      systemFocus,
-      outcome,
-      highlights,
-      body,
+      caseStudies[]{
+        slug,
+        title,
+        summary,
+        problem,
+        systemFocus,
+        outcome,
+        highlights,
+        body,
+        stack,
+        externalUrl,
+        featured,
+        order
+      },
       stack,
       externalUrl,
       accent,
@@ -147,11 +168,20 @@ const projectBySlugQuery = groq`
     title,
     category,
     summary,
-    problem,
-    systemFocus,
-    outcome,
-    highlights,
-    body,
+    caseStudies[]{
+      slug,
+      title,
+      summary,
+      problem,
+      systemFocus,
+      outcome,
+      highlights,
+      body,
+      stack,
+      externalUrl,
+      featured,
+      order
+    },
     stack,
     externalUrl,
     accent,
@@ -387,9 +417,95 @@ function fallbackDictionary(locale: Locale): Dictionary {
 function fallbackProjectsData(): Project[] {
   return fallbackProjects.map((project) => ({
     ...project,
-    body: { en: [], "pt-BR": [] },
-    featured: true,
+    stack: [...project.stack],
+    caseStudies: project.caseStudies.map((caseStudy) => ({
+      ...caseStudy,
+      title: { ...caseStudy.title },
+      summary: { ...caseStudy.summary },
+      problem: { ...caseStudy.problem },
+      systemFocus: { ...caseStudy.systemFocus },
+      outcome: { ...caseStudy.outcome },
+      highlights: {
+        en: [...caseStudy.highlights.en],
+        "pt-BR": [...caseStudy.highlights["pt-BR"]],
+      },
+      body: {
+        en: [...caseStudy.body.en],
+        "pt-BR": [...caseStudy.body["pt-BR"]],
+      },
+      stack: [...caseStudy.stack],
+    })),
   }))
+}
+
+function fallbackCaseStudy(projectSlug: string, index: number): CaseStudy {
+  return {
+    slug: `${projectSlug}-case-${index + 1}`,
+    title: { en: "", "pt-BR": "" },
+    summary: { en: "", "pt-BR": "" },
+    problem: { en: "", "pt-BR": "" },
+    systemFocus: { en: "", "pt-BR": "" },
+    outcome: { en: "", "pt-BR": "" },
+    highlights: { en: [], "pt-BR": [] },
+    body: { en: [], "pt-BR": [] },
+    stack: [],
+    featured: index === 0,
+    order: index + 1,
+  }
+}
+
+function fallbackProjectEntry(projectSlug: string): Project {
+  return {
+    slug: projectSlug,
+    title: projectSlug,
+    category: { en: "", "pt-BR": "" },
+    summary: { en: "", "pt-BR": "" },
+    stack: [],
+    caseStudies: [fallbackCaseStudy(projectSlug, 0)],
+    accent: "cyan",
+    year: "",
+    featured: false,
+  }
+}
+
+function mapRawCaseStudies(rawProject: NonNullable<RawProject>, fallbackProject: Project): CaseStudy[] {
+  const fallbackCases = fallbackProject.caseStudies
+  const mapped = (rawProject.caseStudies ?? [])
+    .map((caseStudy, index): CaseStudy | null => {
+      if (!caseStudy) return null
+      const fallbackCase = fallbackCases[index] ?? fallbackCases[0] ?? fallbackCaseStudy(rawProject.slug ?? "project", index)
+      const externalUrl = caseStudy.externalUrl
+      const slug =
+        typeof caseStudy.slug === "string" && caseStudy.slug.trim().length
+          ? caseStudy.slug.trim()
+          : fallbackCase.slug
+
+      return {
+        slug,
+        title: toLocalizedString(caseStudy.title ?? null, fallbackCase.title),
+        summary: toLocalizedString(caseStudy.summary ?? null, fallbackCase.summary),
+        problem: toLocalizedString(caseStudy.problem ?? null, fallbackCase.problem),
+        systemFocus: toLocalizedString(caseStudy.systemFocus ?? null, fallbackCase.systemFocus),
+        outcome: toLocalizedString(caseStudy.outcome ?? null, fallbackCase.outcome),
+        highlights: toLocalizedStringArray(caseStudy.highlights ?? null, fallbackCase.highlights),
+        body: toLocalizedStringArray(caseStudy.body ?? null, fallbackCase.body),
+        stack: caseStudy.stack?.length ? caseStudy.stack : fallbackCase.stack,
+        ...(externalUrl ? { externalUrl } : {}),
+        featured: caseStudy.featured ?? fallbackCase.featured,
+        order: caseStudy.order ?? fallbackCase.order,
+      }
+    })
+    .filter((caseStudy): caseStudy is CaseStudy => Boolean(caseStudy))
+
+  if (mapped.length > 0) {
+    return mapped.sort((a, b) => {
+      const byFeatured = Number(b.featured) - Number(a.featured)
+      if (byFeatured !== 0) return byFeatured
+      return a.order - b.order
+    })
+  }
+
+  return fallbackCases.length ? fallbackCases : [fallbackCaseStudy(rawProject.slug ?? "project", 0)]
 }
 
 function fallbackPostsData(): Article[] {
@@ -514,6 +630,7 @@ function applyDictionaryOverrides(locale: Locale, copy: Record<string, unknown> 
     "projects.title",
     "projects.description",
     "projects.readCaseStudy",
+    "projects.viewCaseStudies",
     "projects.visit",
     "projects.editorialNote",
     "skills.eyebrow",
@@ -555,7 +672,9 @@ function applyDictionaryOverrides(locale: Locale, copy: Record<string, unknown> 
     "pages.backProjects",
     "pages.backBlog",
     "pages.caseStudy",
+    "pages.caseStudies",
     "pages.caseLabel",
+    "pages.noCaseStudies",
     "pages.overview",
     "pages.problem",
     "pages.systemFocus",
@@ -689,7 +808,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
   const mapped = rawProjects
     .map((item, index): Project | null => {
       if (!item?.slug) return null
-      const fallbackProject = fallback[index] ?? fallback[0]
+      const fallbackProject = fallback[index] ?? fallback[0] ?? fallbackProjectEntry(item.slug)
       const externalUrl = item.externalUrl
 
       return {
@@ -701,12 +820,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
           item.slug,
         category: toLocalizedString(item.category ?? null, fallbackProject?.category ?? { en: "", "pt-BR": "" }),
         summary: toLocalizedString(item.summary ?? null, fallbackProject?.summary ?? { en: "", "pt-BR": "" }),
-        problem: toLocalizedString(item.problem ?? null, fallbackProject?.problem ?? { en: "", "pt-BR": "" }),
-        systemFocus: toLocalizedString(item.systemFocus ?? null, fallbackProject?.systemFocus ?? { en: "", "pt-BR": "" }),
-        outcome: toLocalizedString(item.outcome ?? null, fallbackProject?.outcome ?? { en: "", "pt-BR": "" }),
-        highlights: toLocalizedStringArray(item.highlights ?? null, fallbackProject?.highlights ?? { en: [], "pt-BR": [] }),
-        body: toLocalizedStringArray(item.body ?? null, fallbackProject?.body ?? { en: [], "pt-BR": [] }),
         stack: item.stack?.length ? item.stack : fallbackProject?.stack ?? [],
+        caseStudies: mapRawCaseStudies(item, fallbackProject),
         ...(externalUrl ? { externalUrl } : {}),
         accent: item.accent ?? fallbackProject?.accent ?? "cyan",
         year: item.year ?? fallbackProject?.year ?? "",
@@ -734,7 +849,10 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     return fallback ?? null
   }
 
-  const fallback = fallbackProjectsData().find((item) => item.slug === slug) ?? fallbackProjectsData()[0]
+  const fallback =
+    fallbackProjectsData().find((item) => item.slug === slug) ??
+    fallbackProjectsData()[0] ??
+    fallbackProjectEntry(rawProject.slug)
 
   const externalUrl = rawProject.externalUrl
 
@@ -743,12 +861,8 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     title: rawProject.title?.en ?? rawProject.title?.ptBR ?? fallback?.title ?? rawProject.slug,
     category: toLocalizedString(rawProject.category ?? null, fallback?.category ?? { en: "", "pt-BR": "" }),
     summary: toLocalizedString(rawProject.summary ?? null, fallback?.summary ?? { en: "", "pt-BR": "" }),
-    problem: toLocalizedString(rawProject.problem ?? null, fallback?.problem ?? { en: "", "pt-BR": "" }),
-    systemFocus: toLocalizedString(rawProject.systemFocus ?? null, fallback?.systemFocus ?? { en: "", "pt-BR": "" }),
-    outcome: toLocalizedString(rawProject.outcome ?? null, fallback?.outcome ?? { en: "", "pt-BR": "" }),
-    highlights: toLocalizedStringArray(rawProject.highlights ?? null, fallback?.highlights ?? { en: [], "pt-BR": [] }),
-    body: toLocalizedStringArray(rawProject.body ?? null, fallback?.body ?? { en: [], "pt-BR": [] }),
     stack: rawProject.stack?.length ? rawProject.stack : fallback?.stack ?? [],
+    caseStudies: mapRawCaseStudies(rawProject, fallback),
     ...(externalUrl ? { externalUrl } : {}),
     accent: rawProject.accent ?? fallback?.accent ?? "cyan",
     year: rawProject.year ?? fallback?.year ?? "",
