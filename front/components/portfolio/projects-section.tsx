@@ -1,11 +1,11 @@
 "use client"
 
 import { CaseStudyCard } from "@/components/portfolio/case-study-card"
-import { projects } from "@/lib/data/projects"
+import type { Project } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 import { SectionHeading } from "./section-heading"
 
-export function ProjectsSection() {
+export function ProjectsSection({ projects }: { projects: Project[] }) {
   const { t, locale } = useLocale()
 
   return (

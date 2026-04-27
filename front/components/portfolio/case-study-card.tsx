@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollReveal } from "@/components/portfolio/scroll-reveal"
 import { cn } from "@/lib/utils"
 import type { Dictionary, Locale } from "@/lib/i18n/dictionaries"
-import type { Project } from "@/lib/data/projects"
+import type { Project } from "@/lib/sanity/types"
 
 const accentTone: Record<Project["accent"], string> = {
   cyan: "bg-accent",

@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button"
 import { useLocale } from "./providers"
 import { ScrollReveal } from "./scroll-reveal"
 import { SectionLink } from "./section-link"
-import { profile } from "@/lib/data/profile"
 
 export function Hero() {
-  const { t, locale } = useLocale()
+  const { t, locale, profile } = useLocale()
 
   return (
     <section id="top" className="relative flex min-h-[calc(100svh-3.5rem)] items-center overflow-hidden border-b border-border/60">
@@ -85,33 +84,36 @@ export function Hero() {
         </div>
 
         <ScrollReveal delay={260} variant="fade" className="mt-12 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border/60 pt-6 text-sm text-muted-foreground">
-          <a
-            href={profile.socials.github.href}
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Github className="h-4 w-4" aria-hidden />
-            <span>{profile.socials.github.username}</span>
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-          </a>
-          <a
-            href={profile.socials.linkedin.href}
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Linkedin className="h-4 w-4" aria-hidden />
-            <span>{profile.socials.linkedin.username}</span>
-            <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-          </a>
-          <a
-            href={profile.socials.email.href}
-            className="group inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Mail className="h-4 w-4" aria-hidden />
-            <span>{profile.socials.email.username}</span>
-          </a>
+          {profile.socials.github ? (
+            <a
+              href={profile.socials.github.href}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Github className="h-4 w-4" aria-hidden />
+              <span>{profile.socials.github.username}</span>
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+            </a>
+          ) : null}
+          {profile.socials.linkedin ? (
+            <a
+              href={profile.socials.linkedin.href}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Linkedin className="h-4 w-4" aria-hidden />
+              <span>{profile.socials.linkedin.username}</span>
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+            </a>
+          ) : null}
+          {profile.socials.email ? (
+            <a href={profile.socials.email.href} className="group inline-flex items-center gap-2 hover:text-foreground">
+              <Mail className="h-4 w-4" aria-hidden />
+              <span>{profile.socials.email.username}</span>
+            </a>
+          ) : null}
         </ScrollReveal>
       </div>
     </section>

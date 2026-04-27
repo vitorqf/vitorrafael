@@ -1,12 +1,16 @@
 "use client"
 
-import { ArrowUpRight, Github, Linkedin, Mail, MapPin } from "lucide-react"
-import { profile } from "@/lib/data/profile"
+import { ArrowUpRight, MapPin } from "lucide-react"
+import { getSocialIcon } from "@/lib/icons"
+import type { SocialLink } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 
 export function SiteFooter() {
-  const { t } = useLocale()
+  const { t, profile } = useLocale()
   const year = new Date().getFullYear()
+  const socialLinks = [profile.socials.github, profile.socials.linkedin, profile.socials.email].filter(
+    (link): link is SocialLink => Boolean(link),
+  )
 
   return (
     <footer className="bg-background">
@@ -29,9 +33,20 @@ export function SiteFooter() {
           </div>
 
           <nav aria-label="Social" className="flex flex-wrap items-center gap-2">
-            <FooterLink href={profile.socials.github.href} label="GitHub" icon={<Github className="h-3.5 w-3.5" />} external />
-            <FooterLink href={profile.socials.linkedin.href} label="LinkedIn" icon={<Linkedin className="h-3.5 w-3.5" />} external />
-            <FooterLink href={profile.socials.email.href} label="Email" icon={<Mail className="h-3.5 w-3.5" />} />
+            {socialLinks.map((link) => {
+              const Icon = getSocialIcon(link.icon)
+              const external = link.icon !== "email"
+
+              return (
+                <FooterLink
+                  key={link.id}
+                  href={link.href}
+                  label={link.label}
+                  icon={<Icon className="h-3.5 w-3.5" />}
+                  external={external}
+                />
+              )
+            })}
           </nav>
         </div>
 

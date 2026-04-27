@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
-import { dictionaries, isLocale, locales } from "@/lib/i18n/dictionaries"
-import { projects } from "@/lib/data/projects"
+import { isLocale, locales } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
+import { getDictionary, getProjectBySlug, getProjectSlugs } from "@/lib/sanity/queries"
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const slugs = await getProjectSlugs()
+
   return locales.flatMap((locale) =>
-    projects.map((project) => ({
+    slugs.map((slug) => ({
       locale: locale.code,
-      slug: project.slug,
+      slug,
     })),
   )
 }
@@ -30,7 +32,7 @@ export async function generateMetadata({
     notFound()
   }
 
-  const project = projects.find((item) => item.slug === slug)
+  const [project, t] = await Promise.all([getProjectBySlug(slug), getDictionary(locale)])
 
   if (!project) {
     notFound()
@@ -39,7 +41,7 @@ export async function generateMetadata({
   return createLocalizedMetadata({
     locale,
     path: `/projects/${project.slug}`,
-    title: `${project.title} - ${dictionaries[locale].pages.caseStudy}`,
+    title: `${project.title} - ${t.pages.caseStudy}`,
     description: project.summary[locale],
   })
 }
@@ -55,13 +57,11 @@ export default async function ProjectPage({
     notFound()
   }
 
-  const project = projects.find((item) => item.slug === slug)
+  const [project, t] = await Promise.all([getProjectBySlug(slug), getDictionary(locale)])
 
   if (!project) {
     notFound()
   }
-
-  const t = dictionaries[locale]
 
   return (
     <PortfolioShell>

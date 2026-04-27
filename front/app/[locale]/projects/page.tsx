@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button"
 import { CaseStudyCard } from "@/components/portfolio/case-study-card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { SectionHeading } from "@/components/portfolio/section-heading"
-import { dictionaries, isLocale } from "@/lib/i18n/dictionaries"
-import { projects } from "@/lib/data/projects"
+import { isLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
+import { getDictionary, getProjects } from "@/lib/sanity/queries"
 
 export async function generateMetadata({
   params,
@@ -21,7 +21,7 @@ export async function generateMetadata({
     notFound()
   }
 
-  const t = dictionaries[locale]
+  const t = await getDictionary(locale)
 
   return createLocalizedMetadata({
     locale,
@@ -42,7 +42,7 @@ export default async function ProjectsPage({
     notFound()
   }
 
-  const t = dictionaries[locale]
+  const [t, projects] = await Promise.all([getDictionary(locale), getProjects()])
 
   return (
     <PortfolioShell>

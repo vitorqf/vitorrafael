@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import { Badge } from "@/components/ui/badge"
-import { experience } from "@/lib/data/experience"
+import type { ExperienceItem } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 import { ScrollReveal } from "./scroll-reveal"
 import { SectionHeading } from "./section-heading"
 
-export function ExperienceSection() {
+export function ExperienceSection({ experience }: { experience: ExperienceItem[] }) {
   const { t, locale } = useLocale()
   const timelineRef = React.useRef<HTMLOListElement>(null)
 

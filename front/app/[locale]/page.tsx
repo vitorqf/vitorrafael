@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { HomePage } from "@/components/portfolio/home-page"
-import { dictionaries, isLocale } from "@/lib/i18n/dictionaries"
+import { isLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
+import { getDictionary } from "@/lib/sanity/queries"
 
 export async function generateMetadata({
   params,
@@ -15,11 +16,13 @@ export async function generateMetadata({
     notFound()
   }
 
+  const dictionary = await getDictionary(locale)
+
   return createLocalizedMetadata({
     locale,
     path: "/",
-    title: dictionaries[locale].metadata.title,
-    description: dictionaries[locale].metadata.description,
+    title: dictionary.metadata.title,
+    description: dictionary.metadata.description,
   })
 }
 

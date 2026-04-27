@@ -4,12 +4,12 @@ import { ArrowUpRight, Clock } from "lucide-react"
 import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { articles } from "@/lib/data/writing"
+import type { Article } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 import { SectionHeading } from "./section-heading"
 import { ScrollReveal } from "./scroll-reveal"
 
-export function WritingSection() {
+export function WritingSection({ articles }: { articles: Article[] }) {
   const { t, locale } = useLocale()
 
   const formatter = new Intl.DateTimeFormat(locale === "pt-BR" ? "pt-BR" : "en-US", {

@@ -4,10 +4,9 @@ import { ArrowUpRight, Download, Linkedin, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "./providers"
 import { ScrollReveal } from "./scroll-reveal"
-import { profile } from "@/lib/data/profile"
 
 export function ContactCta() {
-  const { t } = useLocale()
+  const { t, profile } = useLocale()
 
   return (
     <section id="contact" className="flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 items-center border-b border-border/60 bg-background">
@@ -36,25 +35,29 @@ export function ContactCta() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" className="h-11 rounded-full px-5">
-                <a href={profile.socials.email.href}>
-                  <Mail className="mr-1 h-4 w-4" aria-hidden />
-                  {t.contact.contactMe}
-                </a>
-              </Button>
+              {profile.socials.email ? (
+                <Button asChild size="lg" className="h-11 rounded-full px-5">
+                  <a href={profile.socials.email.href}>
+                    <Mail className="mr-1 h-4 w-4" aria-hidden />
+                    {t.contact.contactMe}
+                  </a>
+                </Button>
+              ) : null}
               <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5">
                 <a href={profile.resumeUrl} download>
                   <Download className="mr-1 h-4 w-4" aria-hidden />
                   {t.contact.downloadCv}
                 </a>
               </Button>
-              <Button asChild variant="ghost" size="lg" className="h-11 rounded-full px-5 text-muted-foreground hover:text-foreground">
-                <a href={profile.socials.linkedin.href} target="_blank" rel="noreferrer">
-                  <Linkedin className="mr-1 h-4 w-4" aria-hidden />
-                  {t.contact.linkedin}
-                  <ArrowUpRight className="ml-1 h-3.5 w-3.5" aria-hidden />
-                </a>
-              </Button>
+              {profile.socials.linkedin ? (
+                <Button asChild variant="ghost" size="lg" className="h-11 rounded-full px-5 text-muted-foreground hover:text-foreground">
+                  <a href={profile.socials.linkedin.href} target="_blank" rel="noreferrer">
+                    <Linkedin className="mr-1 h-4 w-4" aria-hidden />
+                    {t.contact.linkedin}
+                    <ArrowUpRight className="ml-1 h-3.5 w-3.5" aria-hidden />
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </div>
         </ScrollReveal>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { Providers } from "@/components/portfolio/providers"
 import { isLocale, locales } from "@/lib/i18n/dictionaries"
+import { getDictionary, getProfile, getSiteSettings } from "@/lib/sanity/queries"
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale: locale.code }))
@@ -19,5 +20,20 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  return <Providers initialLocale={locale}>{children}</Providers>
+  const [dictionary, profile, siteSettings] = await Promise.all([
+    getDictionary(locale),
+    getProfile(),
+    getSiteSettings(locale),
+  ])
+
+  const mergedProfile = {
+    ...profile,
+    resumeUrl: siteSettings.resumeUrl ?? profile.resumeUrl,
+  }
+
+  return (
+    <Providers initialLocale={locale} initialDictionary={dictionary} profile={mergedProfile}>
+      {children}
+    </Providers>
+  )
 }

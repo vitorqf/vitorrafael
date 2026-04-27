@@ -1,12 +1,13 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { metrics } from "@/lib/data/metrics"
+import { getMetricIcon } from "@/lib/icons"
+import type { Metric } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 import { SectionHeading } from "./section-heading"
 import { ScrollReveal } from "./scroll-reveal"
 
-export function MetricsSection() {
+export function MetricsSection({ metrics }: { metrics: Metric[] }) {
   const { t, locale } = useLocale()
 
   return (
@@ -20,7 +21,7 @@ export function MetricsSection() {
 
         <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {metrics.map((m, index) => {
-            const Icon = m.icon
+            const Icon = getMetricIcon(m.icon)
             return (
               <ScrollReveal key={m.id} delay={Math.min(60 * index, 180)} variant="fade">
                 <Card className="group relative overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">

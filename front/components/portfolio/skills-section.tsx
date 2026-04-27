@@ -1,12 +1,13 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { skillGroups } from "@/lib/data/skills"
+import { getSkillIcon } from "@/lib/icons"
+import type { SkillGroup } from "@/lib/sanity/types"
 import { useLocale } from "./providers"
 import { SectionHeading } from "./section-heading"
 import { ScrollReveal } from "./scroll-reveal"
 
-export function SkillsSection() {
+export function SkillsSection({ skillGroups }: { skillGroups: SkillGroup[] }) {
   const { t, locale } = useLocale()
 
   return (
@@ -20,7 +21,7 @@ export function SkillsSection() {
 
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {skillGroups.map((g, index) => {
-            const Icon = g.icon
+            const Icon = getSkillIcon(g.icon)
             return (
               <ScrollReveal key={g.id} delay={Math.min(60 * index, 240)} variant="fade" className="h-full">
                 <Card className="group relative h-full overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">

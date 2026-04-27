@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { SectionHeading } from "@/components/portfolio/section-heading"
-import { articles } from "@/lib/data/writing"
-import { dictionaries, isLocale } from "@/lib/i18n/dictionaries"
+import { isLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
+import { getDictionary, getPosts } from "@/lib/sanity/queries"
 
 export async function generateMetadata({
   params,
@@ -21,7 +21,7 @@ export async function generateMetadata({
     notFound()
   }
 
-  const t = dictionaries[locale]
+  const t = await getDictionary(locale)
 
   return createLocalizedMetadata({
     locale,
@@ -42,7 +42,7 @@ export default async function BlogPage({
     notFound()
   }
 
-  const t = dictionaries[locale]
+  const [t, articles] = await Promise.all([getDictionary(locale), getPosts()])
   const formatter = new Intl.DateTimeFormat(locale === "pt-BR" ? "pt-BR" : "en-US", {
     month: "short",
     year: "numeric",

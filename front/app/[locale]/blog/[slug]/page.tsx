@@ -5,15 +5,17 @@ import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
-import { articles } from "@/lib/data/writing"
-import { dictionaries, isLocale, locales } from "@/lib/i18n/dictionaries"
+import { isLocale, locales } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
+import { getDictionary, getPostBySlug, getPostSlugs } from "@/lib/sanity/queries"
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const slugs = await getPostSlugs()
+
   return locales.flatMap((locale) =>
-    articles.map((article) => ({
+    slugs.map((slug) => ({
       locale: locale.code,
-      slug: article.slug,
+      slug,
     })),
   )
 }
@@ -29,7 +31,7 @@ export async function generateMetadata({
     notFound()
   }
 
-  const article = articles.find((item) => item.slug === slug)
+  const article = await getPostBySlug(slug)
 
   if (!article) {
     notFound()
@@ -54,13 +56,11 @@ export default async function ArticlePage({
     notFound()
   }
 
-  const article = articles.find((item) => item.slug === slug)
+  const [article, t] = await Promise.all([getPostBySlug(slug), getDictionary(locale)])
 
   if (!article) {
     notFound()
   }
-
-  const t = dictionaries[locale]
   const formatter = new Intl.DateTimeFormat(locale === "pt-BR" ? "pt-BR" : "en-US", {
     day: "2-digit",
     month: "long",

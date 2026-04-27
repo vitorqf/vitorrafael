@@ -3,10 +3,12 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { dictionaries, type Dictionary, type Locale } from "@/lib/i18n/dictionaries"
+import type { Profile } from "@/lib/sanity/types"
 
 type LocaleContextValue = {
   locale: Locale
   t: Dictionary
+  profile: Profile
 }
 
 const LocaleContext = React.createContext<LocaleContextValue | null>(null)
@@ -20,17 +22,21 @@ export function useLocale() {
 function LocaleProvider({
   children,
   initialLocale,
+  initialDictionary,
+  profile,
 }: {
   children: React.ReactNode
   initialLocale: Locale
+  initialDictionary: Dictionary
+  profile: Profile
 }) {
   React.useEffect(() => {
     document.documentElement.lang = initialLocale
   }, [initialLocale])
 
   const value = React.useMemo<LocaleContextValue>(
-    () => ({ locale: initialLocale, t: dictionaries[initialLocale] }),
-    [initialLocale],
+    () => ({ locale: initialLocale, t: initialDictionary, profile }),
+    [initialDictionary, initialLocale, profile],
   )
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
@@ -39,13 +45,23 @@ function LocaleProvider({
 export function Providers({
   children,
   initialLocale,
+  initialDictionary,
+  profile,
 }: {
   children: React.ReactNode
   initialLocale: Locale
+  initialDictionary?: Dictionary
+  profile: Profile
 }) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-      <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
+      <LocaleProvider
+        initialLocale={initialLocale}
+        initialDictionary={initialDictionary ?? dictionaries[initialLocale]}
+        profile={profile}
+      >
+        {children}
+      </LocaleProvider>
     </NextThemesProvider>
   )
 }

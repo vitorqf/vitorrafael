@@ -7,7 +7,6 @@ import { useLocale } from "./providers"
 import { SectionLink } from "./section-link"
 import { ThemeToggle } from "./theme-toggle"
 import { LanguageSwitcher } from "./language-switcher"
-import { profile } from "@/lib/data/profile"
 import { cn } from "@/lib/utils"
 
 const sections = [
@@ -18,7 +17,7 @@ const sections = [
 ]
 
 export function SiteHeader() {
-  const { t, locale } = useLocale()
+  const { t, locale, profile } = useLocale()
   const [scrolled, setScrolled] = React.useState(false)
   const [open, setOpen] = React.useState(false)
 
