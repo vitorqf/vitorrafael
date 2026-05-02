@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CaseStudyCard } from "@/components/portfolio/case-study-card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { SectionHeading } from "@/components/portfolio/section-heading"
-import { isLocale } from "@/lib/i18n/dictionaries"
+import { isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
 import { getDictionary, getProjects } from "@/lib/sanity/queries"
 
@@ -17,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -38,7 +38,7 @@ export default async function ProjectsPage({
 }) {
   const { locale } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 

@@ -5,14 +5,14 @@ import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
-import { isLocale, locales } from "@/lib/i18n/dictionaries"
+import { enabledLocales, isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
 import { getDictionary, getPostBySlug, getPostSlugs } from "@/lib/sanity/queries"
 
 export async function generateStaticParams() {
   const slugs = await getPostSlugs()
 
-  return locales.flatMap((locale) =>
+  return enabledLocales.flatMap((locale) =>
     slugs.map((slug) => ({
       locale: locale.code,
       slug,
@@ -27,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -52,7 +52,7 @@ export default async function ArticlePage({
 }) {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 

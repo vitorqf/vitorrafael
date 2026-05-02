@@ -69,20 +69,21 @@ export function ExperienceSection({ experience }: { experience: ExperienceItem[]
           description={t.experience.description}
         />
 
-        <ol
-          ref={timelineRef}
-          className="relative mt-12 pl-6 md:pl-8"
-          style={{ "--timeline-progress": "0" } as React.CSSProperties}
-        >
-          <span
-            aria-hidden
-            className="absolute left-0 top-0 h-full w-px bg-border/60"
-          />
-          <span
-            aria-hidden
-            className="absolute left-0 top-0 h-full w-px origin-top scale-y-[var(--timeline-progress)] bg-accent transition-transform duration-200 ease-out"
-          />
-          {experience.map((item, index) => (
+        {experience.length ? (
+          <ol
+            ref={timelineRef}
+            className="relative mt-12 pl-6 md:pl-8"
+            style={{ "--timeline-progress": "0" } as React.CSSProperties}
+          >
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 h-full w-px bg-border/60"
+            />
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 h-full w-px origin-top scale-y-[var(--timeline-progress)] bg-accent transition-transform duration-200 ease-out"
+            />
+            {experience.map((item, index) => (
             <li key={item.id} className="relative pb-10 last:pb-0" aria-label={item.role[locale]}>
               <ScrollReveal delay={Math.min(index * 90, 240)}>
                 <span
@@ -135,8 +136,13 @@ export function ExperienceSection({ experience }: { experience: ExperienceItem[]
                 </div>
               </ScrollReveal>
             </li>
-          ))}
-        </ol>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-12 rounded-xl border border-border/60 bg-card/50 p-6 text-sm text-muted-foreground">
+            No experience entries published yet.
+          </p>
+        )}
       </div>
     </section>
   )

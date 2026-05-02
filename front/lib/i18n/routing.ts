@@ -1,6 +1,6 @@
-import { defaultLocale, isLocale, locales, type Locale } from "./dictionaries"
+import { defaultLocale, isLocale, enabledLocales, type Locale } from "./dictionaries"
 
-export const localeCodes = locales.map((locale) => locale.code)
+export const localeCodes = enabledLocales.map((locale) => locale.code)
 
 export function getLocaleOrDefault(value: string | undefined): Locale {
   return value && isLocale(value) ? value : defaultLocale

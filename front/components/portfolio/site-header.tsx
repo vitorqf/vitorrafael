@@ -20,6 +20,8 @@ export function SiteHeader() {
   const { t, locale, profile } = useLocale()
   const [scrolled, setScrolled] = React.useState(false)
   const [open, setOpen] = React.useState(false)
+  const hasResume = Boolean(profile.resumeUrl)
+  const isRemoteResume = /^https?:\/\//.test(profile.resumeUrl)
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -66,12 +68,17 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           <LanguageSwitcher />
           <ThemeToggle />
-          <Button asChild size="sm" className="h-9 rounded-full">
-            <a href={profile.resumeUrl} download>
-              {t.nav.resume}
-              <ArrowUpRight className="ml-1 h-3.5 w-3.5" aria-hidden />
-            </a>
-          </Button>
+          {hasResume ? (
+            <Button asChild size="sm" className="h-9 rounded-full">
+              <a
+                href={profile.resumeUrl}
+                {...(isRemoteResume ? { target: "_blank", rel: "noreferrer" } : { download: true })}
+              >
+                {t.nav.resume}
+                <ArrowUpRight className="ml-1 h-3.5 w-3.5" aria-hidden />
+              </a>
+            </Button>
+          ) : null}
         </div>
 
         <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1 md:hidden">
@@ -105,11 +112,16 @@ export function SiteHeader() {
             ))}
             <div className="mt-2 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
               <LanguageSwitcher />
-              <Button asChild size="sm" className="h-9 rounded-full">
-                <a href={profile.resumeUrl} download>
-                  {t.nav.resume}
-                </a>
-              </Button>
+              {hasResume ? (
+                <Button asChild size="sm" className="h-9 rounded-full">
+                  <a
+                    href={profile.resumeUrl}
+                    {...(isRemoteResume ? { target: "_blank", rel: "noreferrer" } : { download: true })}
+                  >
+                    {t.nav.resume}
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </nav>
         </div>

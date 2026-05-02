@@ -19,12 +19,6 @@ import type {
   SocialIconKey,
   SocialLink,
 } from "@/lib/sanity/types"
-import { experience as fallbackExperience } from "@/lib/data/experience"
-import { metrics as fallbackMetrics } from "@/lib/data/metrics"
-import { profile as fallbackProfile } from "@/lib/data/profile"
-import { projects as fallbackProjects } from "@/lib/data/projects"
-import { skillGroups as fallbackSkillGroups } from "@/lib/data/skills"
-import { articles as fallbackArticles } from "@/lib/data/writing"
 
 const fetchOptions = { next: { revalidate: 60 } }
 
@@ -32,6 +26,7 @@ type RawSiteSettings = {
   siteName?: string
   analyticsKey?: string
   resumeUrl?: string
+  resumeFileUrl?: string
   metadataTitle?: SanityLocalizedString
   metadataDescription?: SanityLocalizedString
   copy?: Record<string, unknown>
@@ -127,6 +122,7 @@ const siteSettingsQuery = groq`
     siteName,
     analyticsKey,
     resumeUrl,
+    "resumeFileUrl": resumeFile.asset->url,
     metadataTitle,
     metadataDescription,
     copy
@@ -324,14 +320,17 @@ function asLocalizedStringArray(value: unknown): SanityLocalizedStringArray {
   return { en, ptBR }
 }
 
-function toLocalizedString(value: SanityLocalizedString, fallback: LocalizedString): LocalizedString {
+function toLocalizedString(value: SanityLocalizedString, fallback: LocalizedString = { en: "", "pt-BR": "" }): LocalizedString {
   return {
     en: value?.en ?? value?.ptBR ?? fallback.en,
     "pt-BR": value?.ptBR ?? value?.en ?? fallback["pt-BR"],
   }
 }
 
-function toLocalizedStringArray(value: SanityLocalizedStringArray, fallback: LocalizedStringArray): LocalizedStringArray {
+function toLocalizedStringArray(
+  value: SanityLocalizedStringArray,
+  fallback: LocalizedStringArray = { en: [], "pt-BR": [] },
+): LocalizedStringArray {
   return {
     en: value?.en?.length ? value.en : value?.ptBR?.length ? value.ptBR : fallback.en,
     "pt-BR": value?.ptBR?.length ? value.ptBR : value?.en?.length ? value.en : fallback["pt-BR"],
@@ -394,48 +393,8 @@ function estimateReadTimeFromBody(body: LocalizedStringArray) {
   return Math.max(1, Math.ceil(words / 220))
 }
 
-const skillIconFallbackById: Record<string, SkillGroup["icon"]> = {
-  "frontend-architecture": "layers",
-  mobile: "smartphone",
-  backend: "shield-check",
-  performance: "gauge",
-  product: "compass",
-  dx: "wrench",
-}
-
-const metricIconFallbackById: Record<string, Metric["icon"]> = {
-  "concurrent-users": "users",
-  drivers: "car-front",
-  whatsapp: "messages-square",
-  concurrency: "lock",
-}
-
 function fallbackDictionary(locale: Locale): Dictionary {
   return JSON.parse(JSON.stringify(dictionaries[locale])) as Dictionary
-}
-
-function fallbackProjectsData(): Project[] {
-  return fallbackProjects.map((project) => ({
-    ...project,
-    stack: [...project.stack],
-    caseStudies: project.caseStudies.map((caseStudy) => ({
-      ...caseStudy,
-      title: { ...caseStudy.title },
-      summary: { ...caseStudy.summary },
-      problem: { ...caseStudy.problem },
-      systemFocus: { ...caseStudy.systemFocus },
-      outcome: { ...caseStudy.outcome },
-      highlights: {
-        en: [...caseStudy.highlights.en],
-        "pt-BR": [...caseStudy.highlights["pt-BR"]],
-      },
-      body: {
-        en: [...caseStudy.body.en],
-        "pt-BR": [...caseStudy.body["pt-BR"]],
-      },
-      stack: [...caseStudy.stack],
-    })),
-  }))
 }
 
 function fallbackCaseStudy(projectSlug: string, index: number): CaseStudy {
@@ -454,45 +413,29 @@ function fallbackCaseStudy(projectSlug: string, index: number): CaseStudy {
   }
 }
 
-function fallbackProjectEntry(projectSlug: string): Project {
-  return {
-    slug: projectSlug,
-    title: projectSlug,
-    category: { en: "", "pt-BR": "" },
-    summary: { en: "", "pt-BR": "" },
-    stack: [],
-    caseStudies: [fallbackCaseStudy(projectSlug, 0)],
-    accent: "cyan",
-    year: "",
-    featured: false,
-  }
-}
-
-function mapRawCaseStudies(rawProject: NonNullable<RawProject>, fallbackProject: Project): CaseStudy[] {
-  const fallbackCases = fallbackProject.caseStudies
+function mapRawCaseStudies(rawProject: NonNullable<RawProject>): CaseStudy[] {
   const mapped = (rawProject.caseStudies ?? [])
     .map((caseStudy, index): CaseStudy | null => {
       if (!caseStudy) return null
-      const fallbackCase = fallbackCases[index] ?? fallbackCases[0] ?? fallbackCaseStudy(rawProject.slug ?? "project", index)
       const externalUrl = caseStudy.externalUrl
       const slug =
         typeof caseStudy.slug === "string" && caseStudy.slug.trim().length
           ? caseStudy.slug.trim()
-          : fallbackCase.slug
+          : fallbackCaseStudy(rawProject.slug ?? "project", index).slug
 
       return {
         slug,
-        title: toLocalizedString(caseStudy.title ?? null, fallbackCase.title),
-        summary: toLocalizedString(caseStudy.summary ?? null, fallbackCase.summary),
-        problem: toLocalizedString(caseStudy.problem ?? null, fallbackCase.problem),
-        systemFocus: toLocalizedString(caseStudy.systemFocus ?? null, fallbackCase.systemFocus),
-        outcome: toLocalizedString(caseStudy.outcome ?? null, fallbackCase.outcome),
-        highlights: toLocalizedStringArray(caseStudy.highlights ?? null, fallbackCase.highlights),
-        body: toLocalizedStringArray(caseStudy.body ?? null, fallbackCase.body),
-        stack: caseStudy.stack?.length ? caseStudy.stack : fallbackCase.stack,
+        title: toLocalizedString(caseStudy.title ?? null),
+        summary: toLocalizedString(caseStudy.summary ?? null),
+        problem: toLocalizedString(caseStudy.problem ?? null),
+        systemFocus: toLocalizedString(caseStudy.systemFocus ?? null),
+        outcome: toLocalizedString(caseStudy.outcome ?? null),
+        highlights: toLocalizedStringArray(caseStudy.highlights ?? null),
+        body: toLocalizedStringArray(caseStudy.body ?? null),
+        stack: caseStudy.stack?.length ? caseStudy.stack : [],
         ...(externalUrl ? { externalUrl } : {}),
-        featured: caseStudy.featured ?? fallbackCase.featured,
-        order: caseStudy.order ?? fallbackCase.order,
+        featured: caseStudy.featured ?? index === 0,
+        order: caseStudy.order ?? index + 1,
       }
     })
     .filter((caseStudy): caseStudy is CaseStudy => Boolean(caseStudy))
@@ -505,101 +448,7 @@ function mapRawCaseStudies(rawProject: NonNullable<RawProject>, fallbackProject:
     })
   }
 
-  return fallbackCases.length ? fallbackCases : [fallbackCaseStudy(rawProject.slug ?? "project", 0)]
-}
-
-function fallbackPostsData(): Article[] {
-  return fallbackArticles.map((article) => ({
-    ...article,
-    updatedAt: undefined,
-  }))
-}
-
-function fallbackSkillsData(): SkillGroup[] {
-  return fallbackSkillGroups.map((group) => ({
-    id: group.id,
-    icon: skillIconFallbackById[group.id] ?? "layers",
-    title: group.title,
-    description: group.description,
-    technologies: group.technologies,
-  }))
-}
-
-function fallbackExperienceData(): ExperienceItem[] {
-  return fallbackExperience
-}
-
-function fallbackMetricsData(): Metric[] {
-  return fallbackMetrics.map((metric) => ({
-    id: metric.id,
-    value: metric.value,
-    label: metric.label,
-    icon: metricIconFallbackById[metric.id] ?? "users",
-  }))
-}
-
-function fallbackSocialLinks(): SocialLink[] {
-  return [
-    {
-      id: "github",
-      label: fallbackProfile.socials.github.label,
-      href: fallbackProfile.socials.github.href,
-      username: fallbackProfile.socials.github.username,
-      icon: "github",
-      order: 1,
-    },
-    {
-      id: "linkedin",
-      label: fallbackProfile.socials.linkedin.label,
-      href: fallbackProfile.socials.linkedin.href,
-      username: fallbackProfile.socials.linkedin.username,
-      icon: "linkedin",
-      order: 2,
-    },
-    {
-      id: "email",
-      label: fallbackProfile.socials.email.label,
-      href: fallbackProfile.socials.email.href,
-      username: fallbackProfile.socials.email.username,
-      icon: "email",
-      order: 3,
-    },
-  ]
-}
-
-function fallbackProfileData(): Profile {
-  const fallbackSocials = fallbackSocialLinks()
-
-  const findSocial = (icon: SocialIconKey) => fallbackSocials.find((item) => item.icon === icon) ?? null
-
-  return {
-    name: fallbackProfile.name,
-    role: { en: fallbackProfile.role, "pt-BR": fallbackProfile.role },
-    location: { en: fallbackProfile.location, "pt-BR": fallbackProfile.location },
-    email: fallbackProfile.email,
-    resumeUrl: fallbackProfile.resumeUrl,
-    aboutBody: {
-      en: dictionaries.en.about.body,
-      "pt-BR": dictionaries["pt-BR"].about.body,
-    },
-    basedIn: {
-      en: dictionaries.en.about.basedIn,
-      "pt-BR": dictionaries["pt-BR"].about.basedIn,
-    },
-    timezone: {
-      en: dictionaries.en.about.timezone,
-      "pt-BR": dictionaries["pt-BR"].about.timezone,
-    },
-    languages: {
-      en: dictionaries.en.about.languages,
-      "pt-BR": dictionaries["pt-BR"].about.languages,
-    },
-    socials: {
-      github: findSocial("github"),
-      linkedin: findSocial("linkedin"),
-      email: findSocial("email"),
-    },
-  }
+  return []
 }
 
 function applyDictionaryOverrides(locale: Locale, copy: Record<string, unknown> | undefined) {
@@ -737,9 +586,9 @@ export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSetting
   })
 
   return {
-    siteName: rawSettings?.siteName ?? fallbackProfile.name,
+    siteName: rawSettings?.siteName ?? "Portfolio",
     analyticsKey: rawSettings?.analyticsKey,
-    resumeUrl: rawSettings?.resumeUrl ?? fallbackProfile.resumeUrl,
+    resumeUrl: rawSettings?.resumeFileUrl ?? rawSettings?.resumeUrl,
     metadataTitle,
     metadataDescription,
     dictionaryOverride: dictionary,
@@ -749,7 +598,7 @@ export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSetting
 export const getSocialLinks = cache(async (): Promise<SocialLink[]> => {
   const rawLinks = await getRawSocialLinks()
   if (!rawLinks?.length) {
-    return fallbackSocialLinks()
+    return []
   }
 
   const links = rawLinks
@@ -767,26 +616,25 @@ export const getSocialLinks = cache(async (): Promise<SocialLink[]> => {
     })
     .filter((item): item is SocialLink => Boolean(item))
 
-  return links.length ? links : fallbackSocialLinks()
+  return links
 })
 
 export const getProfile = cache(async (): Promise<Profile> => {
   const rawProfile = await getRawProfile()
   const socialLinks = await getSocialLinks()
-  const fallback = fallbackProfileData()
 
   const findSocial = (icon: SocialIconKey) => socialLinks.find((item) => item.icon === icon) ?? null
 
   return {
-    name: rawProfile?.name ?? fallback.name,
-    role: toLocalizedString(rawProfile?.role ?? null, fallback.role),
-    location: toLocalizedString(rawProfile?.location ?? null, fallback.location),
-    email: rawProfile?.email ?? fallback.email,
-    resumeUrl: rawProfile?.resumeUrl ?? fallback.resumeUrl,
-    aboutBody: toLocalizedString(rawProfile?.aboutBody ?? null, fallback.aboutBody),
-    basedIn: toLocalizedString(rawProfile?.basedIn ?? null, fallback.basedIn),
-    timezone: toLocalizedString(rawProfile?.timezone ?? null, fallback.timezone),
-    languages: toLocalizedString(rawProfile?.languages ?? null, fallback.languages),
+    name: rawProfile?.name ?? "",
+    role: toLocalizedString(rawProfile?.role ?? null),
+    location: toLocalizedString(rawProfile?.location ?? null),
+    email: rawProfile?.email ?? "",
+    resumeUrl: rawProfile?.resumeUrl ?? "",
+    aboutBody: toLocalizedString(rawProfile?.aboutBody ?? null),
+    basedIn: toLocalizedString(rawProfile?.basedIn ?? null),
+    timezone: toLocalizedString(rawProfile?.timezone ?? null),
+    languages: toLocalizedString(rawProfile?.languages ?? null),
     socials: {
       github: findSocial("github"),
       linkedin: findSocial("linkedin"),
@@ -799,74 +647,53 @@ const getRawProjects = cache(async () => safeFetch<RawProject[]>(projectsQuery))
 
 export const getProjects = cache(async (): Promise<Project[]> => {
   const rawProjects = await getRawProjects()
-  const fallback = fallbackProjectsData()
-
-  if (!rawProjects?.length) {
-    return fallback
-  }
+  if (!rawProjects?.length) return []
 
   const mapped = rawProjects
-    .map((item, index): Project | null => {
+    .map((item): Project | null => {
       if (!item?.slug) return null
-      const fallbackProject = fallback[index] ?? fallback[0] ?? fallbackProjectEntry(item.slug)
       const externalUrl = item.externalUrl
 
       return {
         slug: item.slug,
-        title:
-          item.title?.en ??
-          item.title?.ptBR ??
-          fallbackProject?.title ??
-          item.slug,
-        category: toLocalizedString(item.category ?? null, fallbackProject?.category ?? { en: "", "pt-BR": "" }),
-        summary: toLocalizedString(item.summary ?? null, fallbackProject?.summary ?? { en: "", "pt-BR": "" }),
-        stack: item.stack?.length ? item.stack : fallbackProject?.stack ?? [],
-        caseStudies: mapRawCaseStudies(item, fallbackProject),
+        title: item.title?.en ?? item.title?.ptBR ?? item.slug,
+        category: toLocalizedString(item.category ?? null),
+        summary: toLocalizedString(item.summary ?? null),
+        stack: item.stack?.length ? item.stack : [],
+        caseStudies: mapRawCaseStudies(item),
         ...(externalUrl ? { externalUrl } : {}),
-        accent: item.accent ?? fallbackProject?.accent ?? "cyan",
-        year: item.year ?? fallbackProject?.year ?? "",
-        featured: item.featured ?? fallbackProject?.featured ?? false,
+        accent: item.accent ?? "cyan",
+        year: item.year ?? "",
+        featured: item.featured ?? false,
       }
     })
     .filter((project): project is Project => Boolean(project))
 
-  return mapped.length ? mapped : fallback
+  return mapped
 })
 
 export const getProjectSlugs = cache(async () => {
   const slugs = await safeFetch<string[]>(projectSlugsQuery)
-  if (!slugs?.length) {
-    return fallbackProjects.map((project) => project.slug)
-  }
-
-  return slugs
+  return slugs ?? []
 })
 
 export const getProjectBySlug = cache(async (slug: string): Promise<Project | null> => {
   const rawProject = await safeFetch<RawProject>(projectBySlugQuery, { slug })
-  if (!rawProject?.slug) {
-    const fallback = fallbackProjectsData().find((item) => item.slug === slug)
-    return fallback ?? null
-  }
-
-  const fallback =
-    fallbackProjectsData().find((item) => item.slug === slug) ??
-    fallbackProjectsData()[0] ??
-    fallbackProjectEntry(rawProject.slug)
+  if (!rawProject?.slug) return null
 
   const externalUrl = rawProject.externalUrl
 
   return {
     slug: rawProject.slug,
-    title: rawProject.title?.en ?? rawProject.title?.ptBR ?? fallback?.title ?? rawProject.slug,
-    category: toLocalizedString(rawProject.category ?? null, fallback?.category ?? { en: "", "pt-BR": "" }),
-    summary: toLocalizedString(rawProject.summary ?? null, fallback?.summary ?? { en: "", "pt-BR": "" }),
-    stack: rawProject.stack?.length ? rawProject.stack : fallback?.stack ?? [],
-    caseStudies: mapRawCaseStudies(rawProject, fallback),
+    title: rawProject.title?.en ?? rawProject.title?.ptBR ?? rawProject.slug,
+    category: toLocalizedString(rawProject.category ?? null),
+    summary: toLocalizedString(rawProject.summary ?? null),
+    stack: rawProject.stack?.length ? rawProject.stack : [],
+    caseStudies: mapRawCaseStudies(rawProject),
     ...(externalUrl ? { externalUrl } : {}),
-    accent: rawProject.accent ?? fallback?.accent ?? "cyan",
-    year: rawProject.year ?? fallback?.year ?? "",
-    featured: rawProject.featured ?? fallback?.featured ?? false,
+    accent: rawProject.accent ?? "cyan",
+    year: rawProject.year ?? "",
+    featured: rawProject.featured ?? false,
   }
 })
 
@@ -874,149 +701,121 @@ const getRawPosts = cache(async () => safeFetch<RawPost[]>(postsQuery))
 
 export const getPosts = cache(async (): Promise<Article[]> => {
   const rawPosts = await getRawPosts()
-  const fallback = fallbackPostsData()
-
-  if (!rawPosts?.length) {
-    return fallback
-  }
+  if (!rawPosts?.length) return []
 
   const mapped = rawPosts
-    .map((item, index): Article | null => {
+    .map((item): Article | null => {
       if (!item?.slug) return null
-      const fallbackPost = fallback[index] ?? fallback[0]
-      const body = toLocalizedStringArray(item.body ?? null, fallbackPost?.body ?? { en: [], "pt-BR": [] })
+      const body = toLocalizedStringArray(item.body ?? null)
       const readTime = item.readTime ?? estimateReadTimeFromBody(body)
-      const updatedAt = item.updatedAt ?? fallbackPost?.updatedAt
+      const updatedAt = item.updatedAt
 
       return {
         slug: item.slug,
-        title: toLocalizedString(item.title ?? null, fallbackPost?.title ?? { en: "", "pt-BR": "" }),
-        excerpt: toLocalizedString(item.excerpt ?? null, fallbackPost?.excerpt ?? { en: "", "pt-BR": "" }),
+        title: toLocalizedString(item.title ?? null),
+        excerpt: toLocalizedString(item.excerpt ?? null),
         body,
-        tags: item.tags?.length ? item.tags : fallbackPost?.tags ?? [],
+        tags: item.tags?.length ? item.tags : [],
         readTime,
-        publishedAt: item.publishedAt ?? fallbackPost?.publishedAt ?? new Date().toISOString(),
+        publishedAt: item.publishedAt ?? new Date().toISOString(),
         ...(updatedAt ? { updatedAt } : {}),
       }
     })
     .filter((post): post is Article => Boolean(post))
 
-  return mapped.length ? mapped : fallback
+  return mapped
 })
 
 export const getPostSlugs = cache(async () => {
   const slugs = await safeFetch<string[]>(postSlugsQuery)
-  if (!slugs?.length) {
-    return fallbackArticles.map((article) => article.slug)
-  }
-
-  return slugs
+  return slugs ?? []
 })
 
 export const getPostBySlug = cache(async (slug: string): Promise<Article | null> => {
   const rawPost = await safeFetch<RawPost>(postBySlugQuery, { slug })
-  if (!rawPost?.slug) {
-    const fallback = fallbackPostsData().find((item) => item.slug === slug)
-    return fallback ?? null
-  }
+  if (!rawPost?.slug) return null
 
-  const fallback = fallbackPostsData().find((item) => item.slug === slug) ?? fallbackPostsData()[0]
-  const body = toLocalizedStringArray(rawPost.body ?? null, fallback?.body ?? { en: [], "pt-BR": [] })
+  const body = toLocalizedStringArray(rawPost.body ?? null)
   const readTime = rawPost.readTime ?? estimateReadTimeFromBody(body)
-  const updatedAt = rawPost.updatedAt ?? fallback?.updatedAt
+  const updatedAt = rawPost.updatedAt
 
   return {
     slug: rawPost.slug,
-    title: toLocalizedString(rawPost.title ?? null, fallback?.title ?? { en: "", "pt-BR": "" }),
-    excerpt: toLocalizedString(rawPost.excerpt ?? null, fallback?.excerpt ?? { en: "", "pt-BR": "" }),
+    title: toLocalizedString(rawPost.title ?? null),
+    excerpt: toLocalizedString(rawPost.excerpt ?? null),
     body,
-    tags: rawPost.tags?.length ? rawPost.tags : fallback?.tags ?? [],
+    tags: rawPost.tags?.length ? rawPost.tags : [],
     readTime,
-    publishedAt: rawPost.publishedAt ?? fallback?.publishedAt ?? new Date().toISOString(),
+    publishedAt: rawPost.publishedAt ?? new Date().toISOString(),
     ...(updatedAt ? { updatedAt } : {}),
   }
 })
 
 export const getSkillGroups = cache(async (): Promise<SkillGroup[]> => {
   const rawGroups = await safeFetch<RawSkillGroup[]>(skillsQuery)
-  const fallback = fallbackSkillsData()
-
-  if (!rawGroups?.length) {
-    return fallback
-  }
+  if (!rawGroups?.length) return []
 
   const mapped = rawGroups
     .map((group, index) => {
       if (!group) return null
-      const fallbackGroup = fallback[index] ?? fallback[0]
 
       return {
-        id: group.id ?? fallbackGroup?.id ?? `skill-${index}`,
-        icon: group.icon ?? fallbackGroup?.icon ?? "layers",
-        title: toLocalizedString(group.title ?? null, fallbackGroup?.title ?? { en: "", "pt-BR": "" }),
-        description: toLocalizedString(group.description ?? null, fallbackGroup?.description ?? { en: "", "pt-BR": "" }),
-        technologies: group.technologies?.length ? group.technologies : fallbackGroup?.technologies ?? [],
+        id: group.id ?? `skill-${index}`,
+        icon: group.icon ?? "layers",
+        title: toLocalizedString(group.title ?? null),
+        description: toLocalizedString(group.description ?? null),
+        technologies: group.technologies?.length ? group.technologies : [],
       } satisfies SkillGroup
     })
     .filter((group): group is SkillGroup => Boolean(group))
 
-  return mapped.length ? mapped : fallback
+  return mapped
 })
 
 export const getExperience = cache(async (): Promise<ExperienceItem[]> => {
   const rawItems = await safeFetch<RawExperienceItem[]>(experienceQuery)
-  const fallback = fallbackExperienceData()
-
-  if (!rawItems?.length) {
-    return fallback
-  }
+  if (!rawItems?.length) return []
 
   const mapped = rawItems
     .map((item, index) => {
       if (!item) return null
-      const fallbackItem = fallback[index] ?? fallback[0]
 
       return {
-        id: item.id ?? fallbackItem?.id ?? `experience-${index}`,
-        role: toLocalizedString(item.role ?? null, fallbackItem?.role ?? { en: "", "pt-BR": "" }),
-        company: item.company ?? fallbackItem?.company ?? "",
+        id: item.id ?? `experience-${index}`,
+        role: toLocalizedString(item.role ?? null),
+        company: item.company ?? "",
         period: {
-          start: item.period?.start ?? fallbackItem?.period.start ?? "",
-          end: (item.period?.end as ExperienceItem["period"]["end"] | undefined) ?? fallbackItem?.period.end ?? "present",
+          start: item.period?.start ?? "",
+          end: (item.period?.end as ExperienceItem["period"]["end"] | undefined) ?? "present",
         },
-        summary: toLocalizedString(item.summary ?? null, fallbackItem?.summary ?? { en: "", "pt-BR": "" }),
-        achievements: toLocalizedStringArray(item.achievements ?? null, fallbackItem?.achievements ?? { en: [], "pt-BR": [] }),
-        stack: item.stack?.length ? item.stack : fallbackItem?.stack ?? [],
+        summary: toLocalizedString(item.summary ?? null),
+        achievements: toLocalizedStringArray(item.achievements ?? null),
+        stack: item.stack?.length ? item.stack : [],
       } satisfies ExperienceItem
     })
     .filter((entry): entry is ExperienceItem => Boolean(entry))
 
-  return mapped.length ? mapped : fallback
+  return mapped
 })
 
 export const getMetrics = cache(async (): Promise<Metric[]> => {
   const rawMetrics = await safeFetch<RawMetric[]>(metricsQuery)
-  const fallback = fallbackMetricsData()
-
-  if (!rawMetrics?.length) {
-    return fallback
-  }
+  if (!rawMetrics?.length) return []
 
   const mapped = rawMetrics
     .map((metric, index) => {
       if (!metric) return null
-      const fallbackMetric = fallback[index] ?? fallback[0]
 
       return {
-        id: metric.id ?? fallbackMetric?.id ?? `metric-${index}`,
-        value: metric.value ?? fallbackMetric?.value ?? "",
-        label: toLocalizedString(metric.label ?? null, fallbackMetric?.label ?? { en: "", "pt-BR": "" }),
-        icon: metric.icon ?? fallbackMetric?.icon ?? "users",
+        id: metric.id ?? `metric-${index}`,
+        value: metric.value ?? "",
+        label: toLocalizedString(metric.label ?? null),
+        icon: metric.icon ?? "users",
       } satisfies Metric
     })
     .filter((entry): entry is Metric => Boolean(entry))
 
-  return mapped.length ? mapped : fallback
+  return mapped
 })
 
 export const getHomePageContent = cache(async () => {

@@ -37,9 +37,10 @@ export function WritingSection({ articles }: { articles: Article[] }) {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {articles.map((a, index) => (
-            <ScrollReveal key={a.slug} delay={Math.min(70 * index, 210)} variant="fade" className="h-full">
-              <Card className="group relative flex h-full flex-col overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
+          {articles.length ? (
+            articles.map((a, index) => (
+              <ScrollReveal key={a.slug} delay={Math.min(70 * index, 210)} variant="fade" className="h-full">
+                <Card className="group relative flex h-full flex-col overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
                 <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   <time dateTime={a.publishedAt} className="font-mono">
                     {formatter.format(new Date(a.publishedAt))}
@@ -76,9 +77,14 @@ export function WritingSection({ articles }: { articles: Article[] }) {
                     <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                   </span>
                 </div>
-              </Card>
-            </ScrollReveal>
-          ))}
+                </Card>
+              </ScrollReveal>
+            ))
+          ) : (
+            <p className="rounded-xl border border-border/60 bg-card/50 p-6 text-sm text-muted-foreground md:col-span-2">
+              No articles published yet.
+            </p>
+          )}
         </div>
       </div>
     </section>

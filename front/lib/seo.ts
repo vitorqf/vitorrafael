@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { dictionaries, locales, type Locale } from "@/lib/i18n/dictionaries"
+import { dictionaries, enabledLocales, type Locale } from "@/lib/i18n/dictionaries"
 import { getPathWithLocale } from "@/lib/i18n/routing"
 import { siteConfig } from "@/lib/site"
 
@@ -28,7 +28,7 @@ export function createLocalizedMetadata({
     alternates: {
       canonical: url,
       languages: Object.fromEntries(
-        locales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
+        enabledLocales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
       ),
     },
     openGraph: {

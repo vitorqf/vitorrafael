@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
-import { isLocale, locales } from "@/lib/i18n/dictionaries"
+import { enabledLocales, isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
 import { getDictionary, getProjectBySlug, getProjectSlugs } from "@/lib/sanity/queries"
 
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs()
 
-  return locales.flatMap((locale) =>
+  return enabledLocales.flatMap((locale) =>
     slugs.map((slug) => ({
       locale: locale.code,
       slug,
@@ -28,7 +28,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -53,7 +53,7 @@ export default async function ProjectPage({
 }) {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 

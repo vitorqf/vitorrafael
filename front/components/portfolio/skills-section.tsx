@@ -20,11 +20,12 @@ export function SkillsSection({ skillGroups }: { skillGroups: SkillGroup[] }) {
         />
 
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {skillGroups.map((g, index) => {
-            const Icon = getSkillIcon(g.icon)
-            return (
-              <ScrollReveal key={g.id} delay={Math.min(60 * index, 240)} variant="fade" className="h-full">
-                <Card className="group relative h-full overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
+          {skillGroups.length ? (
+            skillGroups.map((g, index) => {
+              const Icon = getSkillIcon(g.icon)
+              return (
+                <ScrollReveal key={g.id} delay={Math.min(60 * index, 240)} variant="fade" className="h-full">
+                  <Card className="group relative h-full overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
                   <div className="flex items-center gap-3">
                     <div className="grid h-10 w-10 place-items-center rounded-lg border border-border/60 bg-background/50 text-accent">
                       <Icon className="h-5 w-5" aria-hidden />
@@ -46,10 +47,15 @@ export function SkillsSection({ skillGroups }: { skillGroups: SkillGroup[] }) {
                       </li>
                     ))}
                   </ul>
-                </Card>
-              </ScrollReveal>
-            )
-          })}
+                  </Card>
+                </ScrollReveal>
+              )
+            })
+          ) : (
+            <p className="rounded-xl border border-border/60 bg-card/50 p-6 text-sm text-muted-foreground lg:col-span-3">
+              No skills published yet.
+            </p>
+          )}
         </div>
       </div>
     </section>

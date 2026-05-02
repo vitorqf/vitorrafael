@@ -20,11 +20,12 @@ export function MetricsSection({ metrics }: { metrics: Metric[] }) {
         />
 
         <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((m, index) => {
-            const Icon = getMetricIcon(m.icon)
-            return (
-              <ScrollReveal key={m.id} delay={Math.min(60 * index, 180)} variant="fade">
-                <Card className="group relative overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
+          {metrics.length ? (
+            metrics.map((m, index) => {
+              const Icon = getMetricIcon(m.icon)
+              return (
+                <ScrollReveal key={m.id} delay={Math.min(60 * index, 180)} variant="fade">
+                  <Card className="group relative overflow-hidden border-border/60 bg-card/60 p-6 transition-colors hover:border-accent/50">
                   <div
                     aria-hidden
                     className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
@@ -40,10 +41,15 @@ export function MetricsSection({ metrics }: { metrics: Metric[] }) {
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {m.label[locale]}
                   </p>
-                </Card>
-              </ScrollReveal>
-            )
-          })}
+                  </Card>
+                </ScrollReveal>
+              )
+            })
+          ) : (
+            <p className="rounded-xl border border-border/60 bg-card/50 p-6 text-sm text-muted-foreground lg:col-span-4">
+              No metrics published yet.
+            </p>
+          )}
         </div>
       </div>
     </section>

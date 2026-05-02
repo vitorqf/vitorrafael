@@ -8,6 +8,8 @@ import { SectionLink } from "./section-link"
 
 export function Hero() {
   const { t, locale, profile } = useLocale()
+  const hasResume = Boolean(profile.resumeUrl)
+  const isRemoteResume = /^https?:\/\//.test(profile.resumeUrl)
 
   return (
     <section id="top" className="relative flex min-h-[calc(100svh-3.5rem)] items-center overflow-hidden border-b border-border/60">
@@ -56,12 +58,17 @@ export function Hero() {
                   <ArrowDown className="ml-1 h-4 w-4" aria-hidden />
                 </SectionLink>
               </Button>
-              <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5">
-                <a href={profile.resumeUrl} download>
-                  <Download className="mr-1 h-4 w-4" aria-hidden />
-                  {t.hero.ctaSecondary}
-                </a>
-              </Button>
+              {hasResume ? (
+                <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5">
+                  <a
+                    href={profile.resumeUrl}
+                    {...(isRemoteResume ? { target: "_blank", rel: "noreferrer" } : { download: true })}
+                  >
+                    <Download className="mr-1 h-4 w-4" aria-hidden />
+                    {t.hero.ctaSecondary}
+                  </a>
+                </Button>
+              ) : null}
             </ScrollReveal>
           </div>
 
