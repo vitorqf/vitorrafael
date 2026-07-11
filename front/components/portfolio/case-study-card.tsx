@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -88,6 +89,17 @@ export function CaseStudyCard({
           </div>
 
           <aside className="border-t border-border/60 bg-background/25 p-5 lg:border-l lg:border-t-0 lg:p-6">
+            {project.coverImageUrl ? (
+              <div className="relative mb-5 aspect-[1200/630] overflow-hidden rounded-md border border-border/60">
+                <Image
+                  src={project.coverImageUrl}
+                  alt={project.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 18rem"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              </div>
+            ) : null}
             <div className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
               {labels.pages.systemFocus}
             </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react"
 import { notFound } from "next/navigation"
@@ -43,6 +44,7 @@ export async function generateMetadata({
     path: `/projects/${project.slug}`,
     title: `${project.title} - ${t.pages.caseStudy}`,
     description: project.summary[locale],
+    imageUrl: project.coverImageUrl,
   })
 }
 
@@ -91,6 +93,19 @@ export default async function ProjectPage({
               <p className="mt-7 max-w-3xl text-pretty text-base leading-8 text-muted-foreground md:text-lg">
                 {project.summary[locale]}
               </p>
+
+              {project.coverImageUrl ? (
+                <div className="relative mt-10 aspect-[1200/630] overflow-hidden rounded-lg border border-border/60">
+                  <Image
+                    src={project.coverImageUrl}
+                    alt={project.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 56rem"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              ) : null}
 
               <section className="mt-12">
                 <h2 className="text-2xl font-semibold tracking-[-0.025em]">{t.pages.caseStudies}</h2>

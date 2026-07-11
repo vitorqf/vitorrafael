@@ -55,6 +55,7 @@ type RawProject = {
   caseStudies?: RawCaseStudy[]
   stack?: string[]
   externalUrl?: string
+  coverImageUrl?: string
   accent?: Project["accent"]
   year?: string
   featured?: boolean
@@ -152,6 +153,7 @@ const projectsQuery = groq`
       },
       stack,
       externalUrl,
+      "coverImageUrl": coverImage.asset->url,
       accent,
       year,
       featured
@@ -180,6 +182,7 @@ const projectBySlugQuery = groq`
     },
     stack,
     externalUrl,
+    "coverImageUrl": coverImage.asset->url,
     accent,
     year,
     featured
@@ -653,6 +656,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
     .map((item): Project | null => {
       if (!item?.slug) return null
       const externalUrl = item.externalUrl
+      const coverImageUrl = item.coverImageUrl
 
       return {
         slug: item.slug,
@@ -662,6 +666,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
         stack: item.stack?.length ? item.stack : [],
         caseStudies: mapRawCaseStudies(item),
         ...(externalUrl ? { externalUrl } : {}),
+        ...(coverImageUrl ? { coverImageUrl } : {}),
         accent: item.accent ?? "cyan",
         year: item.year ?? "",
         featured: item.featured ?? false,
@@ -682,6 +687,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
   if (!rawProject?.slug) return null
 
   const externalUrl = rawProject.externalUrl
+  const coverImageUrl = rawProject.coverImageUrl
 
   return {
     slug: rawProject.slug,
@@ -691,6 +697,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     stack: rawProject.stack?.length ? rawProject.stack : [],
     caseStudies: mapRawCaseStudies(rawProject),
     ...(externalUrl ? { externalUrl } : {}),
+    ...(coverImageUrl ? { coverImageUrl } : {}),
     accent: rawProject.accent ?? "cyan",
     year: rawProject.year ?? "",
     featured: rawProject.featured ?? false,

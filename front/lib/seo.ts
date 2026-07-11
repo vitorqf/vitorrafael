@@ -8,6 +8,7 @@ type MetadataInput = {
   path: string
   title?: string
   description?: string
+  imageUrl?: string
 }
 
 export function createLocalizedMetadata({
@@ -15,6 +16,7 @@ export function createLocalizedMetadata({
   path,
   title,
   description,
+  imageUrl,
 }: MetadataInput): Metadata {
   const dictionary = dictionaries[locale]
   const resolvedTitle = title ?? dictionary.metadata.title
@@ -38,11 +40,13 @@ export function createLocalizedMetadata({
       url,
       siteName: siteConfig.name,
       locale,
+      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630 }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
+      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
   }
 }

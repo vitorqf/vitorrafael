@@ -102,6 +102,7 @@ export type Project = {
   stack: string[]
   caseStudies: CaseStudy[]
   externalUrl?: string
+  coverImageUrl?: string
   accent: ProjectAccent
   year: string
   featured: boolean
