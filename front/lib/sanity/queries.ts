@@ -14,6 +14,7 @@ import type {
   Project,
   SanityLocalizedString,
   SanityLocalizedStringArray,
+  SeoFields,
   SiteSettings,
   SkillGroup,
   SocialIconKey,
@@ -32,9 +33,17 @@ type RawSiteSettings = {
   siteName?: string
   analyticsKey?: string
   resumeUrl?: string
+  openGraphImageUrl?: string
   metadataTitle?: SanityLocalizedString
   metadataDescription?: SanityLocalizedString
   copy?: Record<string, unknown>
+} | null
+
+type RawSeo = {
+  title?: SanityLocalizedString
+  description?: SanityLocalizedString
+  canonicalPath?: string
+  openGraphImageUrl?: string
 } | null
 
 type RawCaseStudy = {
@@ -63,6 +72,7 @@ type RawProject = {
   accent?: Project["accent"]
   year?: string
   featured?: boolean
+  seo?: RawSeo
 } | null
 
 type RawPost = {
@@ -74,6 +84,7 @@ type RawPost = {
   readTime?: number
   publishedAt?: string
   updatedAt?: string
+  seo?: RawSeo
 } | null
 
 type RawSkillGroup = {
@@ -127,6 +138,7 @@ const siteSettingsQuery = groq`
     siteName,
     analyticsKey,
     resumeUrl,
+    "openGraphImageUrl": openGraphImage.asset->url,
     metadataTitle,
     metadataDescription,
     copy
@@ -158,7 +170,13 @@ const projectsQuery = groq`
       externalUrl,
       accent,
       year,
-      featured
+      featured,
+      seo{
+        title,
+        description,
+        canonicalPath,
+        "openGraphImageUrl": openGraphImage.asset->url
+      }
     }
 `
 
@@ -186,7 +204,13 @@ const projectBySlugQuery = groq`
     externalUrl,
     accent,
     year,
-    featured
+    featured,
+    seo{
+      title,
+      description,
+      canonicalPath,
+      "openGraphImageUrl": openGraphImage.asset->url
+    }
   }
 `
 
@@ -204,7 +228,13 @@ const postsQuery = groq`
       tags,
       readTime,
       publishedAt,
-      updatedAt
+      updatedAt,
+      seo{
+        title,
+        description,
+        canonicalPath,
+        "openGraphImageUrl": openGraphImage.asset->url
+      }
     }
 `
 
@@ -217,7 +247,13 @@ const postBySlugQuery = groq`
     tags,
     readTime,
     publishedAt,
-    updatedAt
+    updatedAt,
+    seo{
+      title,
+      description,
+      canonicalPath,
+      "openGraphImageUrl": openGraphImage.asset->url
+    }
   }
 `
 
@@ -335,6 +371,39 @@ function toLocalizedStringArray(value: SanityLocalizedStringArray, fallback: Loc
   return {
     en: value?.en?.length ? value.en : value?.ptBR?.length ? value.ptBR : fallback.en,
     "pt-BR": value?.ptBR?.length ? value.ptBR : value?.en?.length ? value.en : fallback["pt-BR"],
+  }
+}
+
+const emptyLocalizedString: LocalizedString = { en: "", "pt-BR": "" }
+
+function mapSeoFields(value: RawSeo | undefined): SeoFields | undefined {
+  if (!value) return undefined
+
+  const titleValue = asLocalizedString(value.title)
+  const descriptionValue = asLocalizedString(value.description)
+
+  const title = titleValue ? toLocalizedString(titleValue, emptyLocalizedString) : undefined
+  const description = descriptionValue
+    ? toLocalizedString(descriptionValue, emptyLocalizedString)
+    : undefined
+  const canonicalPath =
+    typeof value.canonicalPath === "string" && value.canonicalPath.trim().length
+      ? value.canonicalPath.trim()
+      : undefined
+  const openGraphImageUrl =
+    typeof value.openGraphImageUrl === "string" && value.openGraphImageUrl.trim().length
+      ? value.openGraphImageUrl.trim()
+      : undefined
+
+  if (!title && !description && !canonicalPath && !openGraphImageUrl) {
+    return undefined
+  }
+
+  return {
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(canonicalPath ? { canonicalPath } : {}),
+    ...(openGraphImageUrl ? { openGraphImageUrl } : {}),
   }
 }
 
@@ -725,6 +794,10 @@ export const getDictionary = cache(async (locale: Locale) => {
 export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSettings> => {
   const rawSettings = await getRawSiteSettings()
   const dictionary = await getDictionary(locale)
+  const openGraphImageUrl =
+    typeof rawSettings?.openGraphImageUrl === "string" && rawSettings.openGraphImageUrl.trim().length
+      ? rawSettings.openGraphImageUrl.trim()
+      : undefined
 
   const metadataTitle = toLocalizedString(rawSettings?.metadataTitle ?? null, {
     en: dictionaries.en.metadata.title,
@@ -740,6 +813,7 @@ export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSetting
     siteName: rawSettings?.siteName ?? fallbackProfile.name,
     analyticsKey: rawSettings?.analyticsKey,
     resumeUrl: rawSettings?.resumeUrl ?? fallbackProfile.resumeUrl,
+    openGraphImageUrl,
     metadataTitle,
     metadataDescription,
     dictionaryOverride: dictionary,
@@ -810,6 +884,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       if (!item?.slug) return null
       const fallbackProject = fallback[index] ?? fallback[0] ?? fallbackProjectEntry(item.slug)
       const externalUrl = item.externalUrl
+      const seo = mapSeoFields(item.seo)
 
       return {
         slug: item.slug,
@@ -826,6 +901,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
         accent: item.accent ?? fallbackProject?.accent ?? "cyan",
         year: item.year ?? fallbackProject?.year ?? "",
         featured: item.featured ?? fallbackProject?.featured ?? false,
+        ...(seo ? { seo } : {}),
       }
     })
     .filter((project): project is Project => Boolean(project))
@@ -855,6 +931,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     fallbackProjectEntry(rawProject.slug)
 
   const externalUrl = rawProject.externalUrl
+  const seo = mapSeoFields(rawProject.seo)
 
   return {
     slug: rawProject.slug,
@@ -867,6 +944,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     accent: rawProject.accent ?? fallback?.accent ?? "cyan",
     year: rawProject.year ?? fallback?.year ?? "",
     featured: rawProject.featured ?? fallback?.featured ?? false,
+    ...(seo ? { seo } : {}),
   }
 })
 
@@ -887,6 +965,7 @@ export const getPosts = cache(async (): Promise<Article[]> => {
       const body = toLocalizedStringArray(item.body ?? null, fallbackPost?.body ?? { en: [], "pt-BR": [] })
       const readTime = item.readTime ?? estimateReadTimeFromBody(body)
       const updatedAt = item.updatedAt ?? fallbackPost?.updatedAt
+      const seo = mapSeoFields(item.seo)
 
       return {
         slug: item.slug,
@@ -897,6 +976,7 @@ export const getPosts = cache(async (): Promise<Article[]> => {
         readTime,
         publishedAt: item.publishedAt ?? fallbackPost?.publishedAt ?? new Date().toISOString(),
         ...(updatedAt ? { updatedAt } : {}),
+        ...(seo ? { seo } : {}),
       }
     })
     .filter((post): post is Article => Boolean(post))
@@ -924,6 +1004,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Article | null>
   const body = toLocalizedStringArray(rawPost.body ?? null, fallback?.body ?? { en: [], "pt-BR": [] })
   const readTime = rawPost.readTime ?? estimateReadTimeFromBody(body)
   const updatedAt = rawPost.updatedAt ?? fallback?.updatedAt
+  const seo = mapSeoFields(rawPost.seo)
 
   return {
     slug: rawPost.slug,
@@ -934,6 +1015,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Article | null>
     readTime,
     publishedAt: rawPost.publishedAt ?? fallback?.publishedAt ?? new Date().toISOString(),
     ...(updatedAt ? { updatedAt } : {}),
+    ...(seo ? { seo } : {}),
   }
 })
 

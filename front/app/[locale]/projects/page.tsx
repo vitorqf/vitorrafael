@@ -8,7 +8,7 @@ import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { SectionHeading } from "@/components/portfolio/section-heading"
 import { isLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
-import { getDictionary, getProjects } from "@/lib/sanity/queries"
+import { getDictionary, getProjects, getSiteSettings } from "@/lib/sanity/queries"
 
 export async function generateMetadata({
   params,
@@ -21,13 +21,15 @@ export async function generateMetadata({
     notFound()
   }
 
-  const t = await getDictionary(locale)
+  const [t, siteSettings] = await Promise.all([getDictionary(locale), getSiteSettings(locale)])
 
   return createLocalizedMetadata({
     locale,
     path: "/projects",
     title: t.pages.projectsTitle,
     description: t.pages.projectsDescription,
+    openGraphImageUrl: siteSettings.openGraphImageUrl,
+    siteName: siteSettings.siteName,
   })
 }
 

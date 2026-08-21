@@ -8,6 +8,9 @@ type MetadataInput = {
   path: string
   title?: string
   description?: string
+  canonicalPath?: string
+  openGraphImageUrl?: string
+  siteName?: string
 }
 
 export function createLocalizedMetadata({
@@ -15,18 +18,27 @@ export function createLocalizedMetadata({
   path,
   title,
   description,
+  canonicalPath,
+  openGraphImageUrl,
+  siteName,
 }: MetadataInput): Metadata {
   const dictionary = dictionaries[locale]
   const resolvedTitle = title ?? dictionary.metadata.title
   const resolvedDescription = description ?? dictionary.metadata.description
   const localizedPath = getPathWithLocale(path, locale)
-  const url = new URL(localizedPath, siteConfig.url)
+  const canonicalOverride = canonicalPath?.trim()
+    ? canonicalPath.trim().replace(/\{locale\}/g, locale)
+    : undefined
+  const canonical = canonicalOverride
+    ? new URL(canonicalOverride.startsWith("/") ? canonicalOverride : `/${canonicalOverride}`, siteConfig.url)
+    : new URL(localizedPath, siteConfig.url)
+  const images = openGraphImageUrl ? [{ url: openGraphImageUrl }] : undefined
 
   return {
     title: resolvedTitle,
     description: resolvedDescription,
     alternates: {
-      canonical: url,
+      canonical,
       languages: Object.fromEntries(
         locales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
       ),
@@ -35,14 +47,16 @@ export function createLocalizedMetadata({
       type: "website",
       title: resolvedTitle,
       description: resolvedDescription,
-      url,
-      siteName: siteConfig.name,
+      url: canonical,
+      siteName: siteName ?? siteConfig.name,
       locale,
+      ...(images ? { images } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
+      ...(images ? { images: images.map((item) => item.url) } : {}),
     },
   }
 }

@@ -8,7 +8,12 @@ import { Card } from "@/components/ui/card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { isLocale, locales } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
-import { getDictionary, getProjectBySlug, getProjectSlugs } from "@/lib/sanity/queries"
+import {
+  getDictionary,
+  getProjectBySlug,
+  getProjectSlugs,
+  getSiteSettings,
+} from "@/lib/sanity/queries"
 
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs()
@@ -32,7 +37,11 @@ export async function generateMetadata({
     notFound()
   }
 
-  const [project, t] = await Promise.all([getProjectBySlug(slug), getDictionary(locale)])
+  const [project, t, siteSettings] = await Promise.all([
+    getProjectBySlug(slug),
+    getDictionary(locale),
+    getSiteSettings(locale),
+  ])
 
   if (!project) {
     notFound()
@@ -41,8 +50,11 @@ export async function generateMetadata({
   return createLocalizedMetadata({
     locale,
     path: `/projects/${project.slug}`,
-    title: `${project.title} - ${t.pages.caseStudy}`,
-    description: project.summary[locale],
+    title: project.seo?.title?.[locale] ?? `${project.title} - ${t.pages.caseStudy}`,
+    description: project.seo?.description?.[locale] ?? project.summary[locale],
+    canonicalPath: project.seo?.canonicalPath,
+    openGraphImageUrl: project.seo?.openGraphImageUrl ?? siteSettings.openGraphImageUrl,
+    siteName: siteSettings.siteName,
   })
 }
 
