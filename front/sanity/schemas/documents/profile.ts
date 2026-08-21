@@ -34,6 +34,12 @@ export const profile = defineType({
       type: "string",
     }),
     defineField({
+      name: "toptalUrl",
+      title: "Toptal Profile URL",
+      description: "Public Toptal profile/resume URL. Leave empty to hide the Toptal badge.",
+      type: "url",
+    }),
+    defineField({
       name: "aboutBody",
       title: "About Body",
       type: "localizedText",

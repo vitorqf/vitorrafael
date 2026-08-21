@@ -93,6 +93,11 @@ export const dictionaries = {
       timezoneLabel: "Timezone",
       languagesLabel: "Languages",
     },
+    toptal: {
+      title: "TOP 3% TALENT",
+      vettedBy: "Vetted by",
+      cta: "Hire me",
+    },
     contact: {
       eyebrow: "Get in touch",
       title: "Let us build something reliable, fast and useful.",
@@ -211,6 +216,11 @@ export const dictionaries = {
       locationLabel: "Localizacao",
       timezoneLabel: "Fuso",
       languagesLabel: "Idiomas",
+    },
+    toptal: {
+      title: "TOP 3% TALENT",
+      vettedBy: "Verificado por",
+      cta: "Contrate-me",
     },
     contact: {
       eyebrow: "Vamos conversar",

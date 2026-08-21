@@ -118,6 +118,7 @@ type RawProfile = {
   location?: SanityLocalizedString
   email?: string
   resumeUrl?: string
+  toptalUrl?: string
   aboutBody?: SanityLocalizedString
   basedIn?: SanityLocalizedString
   timezone?: SanityLocalizedString
@@ -305,6 +306,7 @@ const profileQuery = groq`
     location,
     email,
     resumeUrl,
+    toptalUrl,
     aboutBody,
     basedIn,
     timezone,
@@ -647,6 +649,7 @@ function fallbackProfileData(): Profile {
     location: { en: fallbackProfile.location, "pt-BR": fallbackProfile.location },
     email: fallbackProfile.email,
     resumeUrl: fallbackProfile.resumeUrl,
+    toptalUrl: fallbackProfile.toptalUrl,
     aboutBody: {
       en: dictionaries.en.about.body,
       "pt-BR": dictionaries["pt-BR"].about.body,
@@ -857,6 +860,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
     location: toLocalizedString(rawProfile?.location ?? null, fallback.location),
     email: rawProfile?.email ?? fallback.email,
     resumeUrl: rawProfile?.resumeUrl ?? fallback.resumeUrl,
+    toptalUrl: rawProfile?.toptalUrl ?? fallback.toptalUrl,
     aboutBody: toLocalizedString(rawProfile?.aboutBody ?? null, fallback.aboutBody),
     basedIn: toLocalizedString(rawProfile?.basedIn ?? null, fallback.basedIn),
     timezone: toLocalizedString(rawProfile?.timezone ?? null, fallback.timezone),

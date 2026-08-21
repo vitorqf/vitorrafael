@@ -47,6 +47,7 @@ export type Profile = {
   location: LocalizedString
   email: string
   resumeUrl: string
+  toptalUrl?: string
   aboutBody: LocalizedString
   basedIn: LocalizedString
   timezone: LocalizedString
