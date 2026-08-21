@@ -25,6 +25,13 @@ export type SkillIconKey = "layers" | "smartphone" | "shield-check" | "gauge" | 
 export type MetricIconKey = "users" | "car-front" | "messages-square" | "lock"
 export type ProjectAccent = "cyan" | "amber" | "violet" | "emerald"
 
+export type SeoFields = {
+  title?: LocalizedString
+  description?: LocalizedString
+  canonicalPath?: string
+  openGraphImageUrl?: string
+}
+
 export type SocialLink = {
   id: string
   label: string
@@ -40,6 +47,7 @@ export type Profile = {
   location: LocalizedString
   email: string
   resumeUrl: string
+  toptalUrl?: string
   aboutBody: LocalizedString
   basedIn: LocalizedString
   timezone: LocalizedString
@@ -106,6 +114,7 @@ export type Project = {
   accent: ProjectAccent
   year: string
   featured: boolean
+  seo?: SeoFields
 }
 
 export type Article = {
@@ -117,12 +126,14 @@ export type Article = {
   readTime: number
   publishedAt: string
   updatedAt?: string
+  seo?: SeoFields
 }
 
 export type SiteSettings = {
   siteName: string
   analyticsKey?: string
   resumeUrl?: string
+  openGraphImageUrl?: string
   metadataTitle: LocalizedString
   metadataDescription: LocalizedString
   dictionaryOverride: Partial<Dictionary>

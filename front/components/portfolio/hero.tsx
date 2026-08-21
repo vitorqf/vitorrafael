@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useLocale } from "./providers"
 import { ScrollReveal } from "./scroll-reveal"
 import { SectionLink } from "./section-link"
+import { ToptalBadge } from "./toptal-badge"
 
 export function Hero() {
   const { t, locale, profile } = useLocale()
@@ -72,22 +73,28 @@ export function Hero() {
             </ScrollReveal>
           </div>
 
-          <ScrollReveal delay={200} variant="fade" className="border-t border-border/60 pt-6 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
-            <div className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
-              {t.hero.focusKicker}
-            </div>
-            <h2 className="mt-3 text-balance text-xl font-semibold leading-tight tracking-tight">
-              {t.hero.focusTitle}
-            </h2>
-            <ol className="mt-5 flex flex-col gap-4">
-              {t.hero.focusItems.map((item, index) => (
-                <li key={item} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-t border-border/60 pt-4">
-                  <span className="font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="text-sm leading-6 text-muted-foreground">{item}</span>
-                </li>
-              ))}
-            </ol>
-          </ScrollReveal>
+          <div className="flex flex-col gap-8">
+            <ScrollReveal delay={160} variant="fade" className="flex justify-center lg:justify-start lg:pl-7">
+              <ToptalBadge />
+            </ScrollReveal>
+
+            <ScrollReveal delay={200} variant="fade" className="border-t border-border/60 pt-6 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+              <div className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
+                {t.hero.focusKicker}
+              </div>
+              <h2 className="mt-3 text-balance text-xl font-semibold leading-tight tracking-tight">
+                {t.hero.focusTitle}
+              </h2>
+              <ol className="mt-5 flex flex-col gap-4">
+                {t.hero.focusItems.map((item, index) => (
+                  <li key={item} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-t border-border/60 pt-4">
+                    <span className="font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="text-sm leading-6 text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ol>
+            </ScrollReveal>
+          </div>
         </div>
 
         <ScrollReveal delay={260} variant="fade" className="mt-12 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border/60 pt-6 text-sm text-muted-foreground">

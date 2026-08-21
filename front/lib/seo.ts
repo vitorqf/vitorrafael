@@ -8,7 +8,9 @@ type MetadataInput = {
   path: string
   title?: string
   description?: string
-  imageUrl?: string
+  canonicalPath?: string
+  openGraphImageUrl?: string
+  siteName?: string
 }
 
 export function createLocalizedMetadata({
@@ -16,19 +18,27 @@ export function createLocalizedMetadata({
   path,
   title,
   description,
-  imageUrl,
+  canonicalPath,
+  openGraphImageUrl,
+  siteName,
 }: MetadataInput): Metadata {
   const dictionary = dictionaries[locale]
   const resolvedTitle = title ?? dictionary.metadata.title
   const resolvedDescription = description ?? dictionary.metadata.description
   const localizedPath = getPathWithLocale(path, locale)
-  const url = new URL(localizedPath, siteConfig.url)
+  const canonicalOverride = canonicalPath?.trim()
+    ? canonicalPath.trim().replace(/\{locale\}/g, locale)
+    : undefined
+  const canonical = canonicalOverride
+    ? new URL(canonicalOverride.startsWith("/") ? canonicalOverride : `/${canonicalOverride}`, siteConfig.url)
+    : new URL(localizedPath, siteConfig.url)
+  const images = openGraphImageUrl ? [{ url: openGraphImageUrl, width: 1200, height: 630 }] : undefined
 
   return {
     title: resolvedTitle,
     description: resolvedDescription,
     alternates: {
-      canonical: url,
+      canonical,
       languages: Object.fromEntries(
         enabledLocales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
       ),
@@ -37,16 +47,16 @@ export function createLocalizedMetadata({
       type: "website",
       title: resolvedTitle,
       description: resolvedDescription,
-      url,
-      siteName: siteConfig.name,
+      url: canonical,
+      siteName: siteName ?? siteConfig.name,
       locale,
-      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630 }] } : {}),
+      ...(images ? { images } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      ...(imageUrl ? { images: [imageUrl] } : {}),
+      ...(images ? { images: images.map((item) => item.url) } : {}),
     },
   }
 }

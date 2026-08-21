@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
 import { enabledLocales, isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
-import { getDictionary, getPostBySlug, getPostSlugs } from "@/lib/sanity/queries"
+import { getDictionary, getPostBySlug, getPostSlugs, getSiteSettings } from "@/lib/sanity/queries"
 
 export async function generateStaticParams() {
   const slugs = await getPostSlugs()
@@ -31,7 +31,7 @@ export async function generateMetadata({
     notFound()
   }
 
-  const article = await getPostBySlug(slug)
+  const [article, siteSettings] = await Promise.all([getPostBySlug(slug), getSiteSettings(locale)])
 
   if (!article) {
     notFound()
@@ -40,8 +40,11 @@ export async function generateMetadata({
   return createLocalizedMetadata({
     locale,
     path: `/blog/${article.slug}`,
-    title: article.title[locale],
-    description: article.excerpt[locale],
+    title: article.seo?.title?.[locale] ?? article.title[locale],
+    description: article.seo?.description?.[locale] ?? article.excerpt[locale],
+    canonicalPath: article.seo?.canonicalPath,
+    openGraphImageUrl: article.seo?.openGraphImageUrl ?? siteSettings.openGraphImageUrl,
+    siteName: siteSettings.siteName,
   })
 }
 

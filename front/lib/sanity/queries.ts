@@ -14,6 +14,7 @@ import type {
   Project,
   SanityLocalizedString,
   SanityLocalizedStringArray,
+  SeoFields,
   SiteSettings,
   SkillGroup,
   SocialIconKey,
@@ -26,10 +27,18 @@ type RawSiteSettings = {
   siteName?: string
   analyticsKey?: string
   resumeUrl?: string
+  openGraphImageUrl?: string
   resumeFileUrl?: string
   metadataTitle?: SanityLocalizedString
   metadataDescription?: SanityLocalizedString
   copy?: Record<string, unknown>
+} | null
+
+type RawSeo = {
+  title?: SanityLocalizedString
+  description?: SanityLocalizedString
+  canonicalPath?: string
+  openGraphImageUrl?: string
 } | null
 
 type RawCaseStudy = {
@@ -59,6 +68,7 @@ type RawProject = {
   accent?: Project["accent"]
   year?: string
   featured?: boolean
+  seo?: RawSeo
 } | null
 
 type RawPost = {
@@ -70,6 +80,7 @@ type RawPost = {
   readTime?: number
   publishedAt?: string
   updatedAt?: string
+  seo?: RawSeo
 } | null
 
 type RawSkillGroup = {
@@ -103,6 +114,7 @@ type RawProfile = {
   location?: SanityLocalizedString
   email?: string
   resumeUrl?: string
+  toptalUrl?: string
   aboutBody?: SanityLocalizedString
   basedIn?: SanityLocalizedString
   timezone?: SanityLocalizedString
@@ -123,6 +135,7 @@ const siteSettingsQuery = groq`
     siteName,
     analyticsKey,
     resumeUrl,
+    "openGraphImageUrl": openGraphImage.asset->url,
     "resumeFileUrl": resumeFile.asset->url,
     metadataTitle,
     metadataDescription,
@@ -156,7 +169,13 @@ const projectsQuery = groq`
       "coverImageUrl": coverImage.asset->url,
       accent,
       year,
-      featured
+      featured,
+      seo{
+        title,
+        description,
+        canonicalPath,
+        "openGraphImageUrl": openGraphImage.asset->url
+      }
     }
 `
 
@@ -185,7 +204,13 @@ const projectBySlugQuery = groq`
     "coverImageUrl": coverImage.asset->url,
     accent,
     year,
-    featured
+    featured,
+    seo{
+      title,
+      description,
+      canonicalPath,
+      "openGraphImageUrl": openGraphImage.asset->url
+    }
   }
 `
 
@@ -203,7 +228,13 @@ const postsQuery = groq`
       tags,
       readTime,
       publishedAt,
-      updatedAt
+      updatedAt,
+      seo{
+        title,
+        description,
+        canonicalPath,
+        "openGraphImageUrl": openGraphImage.asset->url
+      }
     }
 `
 
@@ -216,7 +247,13 @@ const postBySlugQuery = groq`
     tags,
     readTime,
     publishedAt,
-    updatedAt
+    updatedAt,
+    seo{
+      title,
+      description,
+      canonicalPath,
+      "openGraphImageUrl": openGraphImage.asset->url
+    }
   }
 `
 
@@ -268,6 +305,7 @@ const profileQuery = groq`
     location,
     email,
     resumeUrl,
+    toptalUrl,
     aboutBody,
     basedIn,
     timezone,
@@ -337,6 +375,39 @@ function toLocalizedStringArray(
   return {
     en: value?.en?.length ? value.en : value?.ptBR?.length ? value.ptBR : fallback.en,
     "pt-BR": value?.ptBR?.length ? value.ptBR : value?.en?.length ? value.en : fallback["pt-BR"],
+  }
+}
+
+const emptyLocalizedString: LocalizedString = { en: "", "pt-BR": "" }
+
+function mapSeoFields(value: RawSeo | undefined): SeoFields | undefined {
+  if (!value) return undefined
+
+  const titleValue = asLocalizedString(value.title)
+  const descriptionValue = asLocalizedString(value.description)
+
+  const title = titleValue ? toLocalizedString(titleValue, emptyLocalizedString) : undefined
+  const description = descriptionValue
+    ? toLocalizedString(descriptionValue, emptyLocalizedString)
+    : undefined
+  const canonicalPath =
+    typeof value.canonicalPath === "string" && value.canonicalPath.trim().length
+      ? value.canonicalPath.trim()
+      : undefined
+  const openGraphImageUrl =
+    typeof value.openGraphImageUrl === "string" && value.openGraphImageUrl.trim().length
+      ? value.openGraphImageUrl.trim()
+      : undefined
+
+  if (!title && !description && !canonicalPath && !openGraphImageUrl) {
+    return undefined
+  }
+
+  return {
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(canonicalPath ? { canonicalPath } : {}),
+    ...(openGraphImageUrl ? { openGraphImageUrl } : {}),
   }
 }
 
@@ -577,6 +648,10 @@ export const getDictionary = cache(async (locale: Locale) => {
 export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSettings> => {
   const rawSettings = await getRawSiteSettings()
   const dictionary = await getDictionary(locale)
+  const openGraphImageUrl =
+    typeof rawSettings?.openGraphImageUrl === "string" && rawSettings.openGraphImageUrl.trim().length
+      ? rawSettings.openGraphImageUrl.trim()
+      : undefined
 
   const metadataTitle = toLocalizedString(rawSettings?.metadataTitle ?? null, {
     en: dictionaries.en.metadata.title,
@@ -592,6 +667,7 @@ export const getSiteSettings = cache(async (locale: Locale): Promise<SiteSetting
     siteName: rawSettings?.siteName ?? "Portfolio",
     analyticsKey: rawSettings?.analyticsKey,
     resumeUrl: rawSettings?.resumeFileUrl ?? rawSettings?.resumeUrl,
+    openGraphImageUrl,
     metadataTitle,
     metadataDescription,
     dictionaryOverride: dictionary,
@@ -634,6 +710,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
     location: toLocalizedString(rawProfile?.location ?? null),
     email: rawProfile?.email ?? "",
     resumeUrl: rawProfile?.resumeUrl ?? "",
+    toptalUrl: rawProfile?.toptalUrl,
     aboutBody: toLocalizedString(rawProfile?.aboutBody ?? null),
     basedIn: toLocalizedString(rawProfile?.basedIn ?? null),
     timezone: toLocalizedString(rawProfile?.timezone ?? null),
@@ -657,6 +734,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       if (!item?.slug) return null
       const externalUrl = item.externalUrl
       const coverImageUrl = item.coverImageUrl
+      const seo = mapSeoFields(item.seo)
 
       return {
         slug: item.slug,
@@ -670,6 +748,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
         accent: item.accent ?? "cyan",
         year: item.year ?? "",
         featured: item.featured ?? false,
+        ...(seo ? { seo } : {}),
       }
     })
     .filter((project): project is Project => Boolean(project))
@@ -688,6 +767,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
 
   const externalUrl = rawProject.externalUrl
   const coverImageUrl = rawProject.coverImageUrl
+  const seo = mapSeoFields(rawProject.seo)
 
   return {
     slug: rawProject.slug,
@@ -701,6 +781,7 @@ export const getProjectBySlug = cache(async (slug: string): Promise<Project | nu
     accent: rawProject.accent ?? "cyan",
     year: rawProject.year ?? "",
     featured: rawProject.featured ?? false,
+    ...(seo ? { seo } : {}),
   }
 })
 
@@ -716,6 +797,7 @@ export const getPosts = cache(async (): Promise<Article[]> => {
       const body = toLocalizedStringArray(item.body ?? null)
       const readTime = item.readTime ?? estimateReadTimeFromBody(body)
       const updatedAt = item.updatedAt
+      const seo = mapSeoFields(item.seo)
 
       return {
         slug: item.slug,
@@ -726,6 +808,7 @@ export const getPosts = cache(async (): Promise<Article[]> => {
         readTime,
         publishedAt: item.publishedAt ?? new Date().toISOString(),
         ...(updatedAt ? { updatedAt } : {}),
+        ...(seo ? { seo } : {}),
       }
     })
     .filter((post): post is Article => Boolean(post))
@@ -745,6 +828,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Article | null>
   const body = toLocalizedStringArray(rawPost.body ?? null)
   const readTime = rawPost.readTime ?? estimateReadTimeFromBody(body)
   const updatedAt = rawPost.updatedAt
+  const seo = mapSeoFields(rawPost.seo)
 
   return {
     slug: rawPost.slug,
@@ -755,6 +839,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Article | null>
     readTime,
     publishedAt: rawPost.publishedAt ?? new Date().toISOString(),
     ...(updatedAt ? { updatedAt } : {}),
+    ...(seo ? { seo } : {}),
   }
 })
 
