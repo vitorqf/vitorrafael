@@ -8,8 +8,14 @@ export const locales: { code: Locale; label: string }[] = [
   { code: "pt-BR", label: "PT-BR" },
 ]
 
+export const enabledLocales: { code: Locale; label: string }[] = [{ code: "en", label: "EN" }]
+
 export function isLocale(value: string): value is Locale {
   return locales.some((locale) => locale.code === value)
+}
+
+export function isEnabledLocale(value: string): value is Locale {
+  return enabledLocales.some((locale) => locale.code === value)
 }
 
 export const dictionaries = {

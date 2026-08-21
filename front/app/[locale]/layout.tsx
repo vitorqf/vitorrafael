@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation"
 import { Providers } from "@/components/portfolio/providers"
-import { isLocale, locales } from "@/lib/i18n/dictionaries"
+import { enabledLocales, isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { getDictionary, getProfile, getSiteSettings } from "@/lib/sanity/queries"
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale: locale.code }))
+  return enabledLocales.map((locale) => ({ locale: locale.code }))
 }
 
 export default async function LocaleLayout({
@@ -16,7 +16,7 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 

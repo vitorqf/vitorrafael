@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { HomePage } from "@/components/portfolio/home-page"
-import { isLocale } from "@/lib/i18n/dictionaries"
+import { isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
 import { getSiteSettings } from "@/lib/sanity/queries"
 
@@ -12,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -35,7 +35,7 @@ export default async function Page({
 }) {
   const { locale } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 

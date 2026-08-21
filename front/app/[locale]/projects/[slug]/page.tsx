@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react"
 import { notFound } from "next/navigation"
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PortfolioShell } from "@/components/portfolio/portfolio-shell"
-import { isLocale, locales } from "@/lib/i18n/dictionaries"
+import { enabledLocales, isEnabledLocale } from "@/lib/i18n/dictionaries"
 import { createLocalizedMetadata } from "@/lib/seo"
 import {
   getDictionary,
@@ -18,7 +19,7 @@ import {
 export async function generateStaticParams() {
   const slugs = await getProjectSlugs()
 
-  return locales.flatMap((locale) =>
+  return enabledLocales.flatMap((locale) =>
     slugs.map((slug) => ({
       locale: locale.code,
       slug,
@@ -33,7 +34,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -53,7 +54,8 @@ export async function generateMetadata({
     title: project.seo?.title?.[locale] ?? `${project.title} - ${t.pages.caseStudy}`,
     description: project.seo?.description?.[locale] ?? project.summary[locale],
     canonicalPath: project.seo?.canonicalPath,
-    openGraphImageUrl: project.seo?.openGraphImageUrl ?? siteSettings.openGraphImageUrl,
+    openGraphImageUrl:
+      project.seo?.openGraphImageUrl ?? project.coverImageUrl ?? siteSettings.openGraphImageUrl,
     siteName: siteSettings.siteName,
   })
 }
@@ -65,7 +67,7 @@ export default async function ProjectPage({
 }) {
   const { locale, slug } = await params
 
-  if (!isLocale(locale)) {
+  if (!isEnabledLocale(locale)) {
     notFound()
   }
 
@@ -103,6 +105,19 @@ export default async function ProjectPage({
               <p className="mt-7 max-w-3xl text-pretty text-base leading-8 text-muted-foreground md:text-lg">
                 {project.summary[locale]}
               </p>
+
+              {project.coverImageUrl ? (
+                <div className="relative mt-10 aspect-[1200/630] overflow-hidden rounded-lg border border-border/60">
+                  <Image
+                    src={project.coverImageUrl}
+                    alt={project.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 56rem"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              ) : null}
 
               <section className="mt-12">
                 <h2 className="text-2xl font-semibold tracking-[-0.025em]">{t.pages.caseStudies}</h2>

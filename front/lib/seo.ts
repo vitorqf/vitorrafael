@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { dictionaries, locales, type Locale } from "@/lib/i18n/dictionaries"
+import { dictionaries, enabledLocales, type Locale } from "@/lib/i18n/dictionaries"
 import { getPathWithLocale } from "@/lib/i18n/routing"
 import { siteConfig } from "@/lib/site"
 
@@ -32,7 +32,7 @@ export function createLocalizedMetadata({
   const canonical = canonicalOverride
     ? new URL(canonicalOverride.startsWith("/") ? canonicalOverride : `/${canonicalOverride}`, siteConfig.url)
     : new URL(localizedPath, siteConfig.url)
-  const images = openGraphImageUrl ? [{ url: openGraphImageUrl }] : undefined
+  const images = openGraphImageUrl ? [{ url: openGraphImageUrl, width: 1200, height: 630 }] : undefined
 
   return {
     title: resolvedTitle,
@@ -40,7 +40,7 @@ export function createLocalizedMetadata({
     alternates: {
       canonical,
       languages: Object.fromEntries(
-        locales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
+        enabledLocales.map((item) => [item.code, getPathWithLocale(path, item.code)]),
       ),
     },
     openGraph: {

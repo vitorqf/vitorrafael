@@ -11,7 +11,6 @@ export type Profile = {
   location: string
   email: string
   resumeUrl: string
-  toptalUrl?: string
   socials: {
     github: SocialLink
     linkedin: SocialLink
@@ -25,8 +24,6 @@ export const profile: Profile = {
   location: "Brazil · LATAM",
   email: "hello@vitorrafael.dev",
   resumeUrl: "/vitor-rafael-cv.pdf",
-  toptalUrl:
-    "https://www.toptal.com/developers/resume/vitor-rafael-queiroz-ferreira#B6myLo",
   socials: {
     github: {
       label: "GitHub",

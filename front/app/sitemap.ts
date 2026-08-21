@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next"
-import { locales } from "@/lib/i18n/dictionaries"
+import { enabledLocales } from "@/lib/i18n/dictionaries"
 import { getPostSlugs, getPosts, getProjectSlugs } from "@/lib/sanity/queries"
 import { siteConfig } from "@/lib/site"
 
@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const postDateBySlug = new Map(posts.map((post) => [post.slug, post.publishedAt]))
   const urls: MetadataRoute.Sitemap = []
 
-  for (const locale of locales) {
+  for (const locale of enabledLocales) {
     for (const path of staticPaths) {
       urls.push({
         url: absoluteUrl(`/${locale.code}${path}`),

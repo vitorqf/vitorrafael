@@ -24,15 +24,21 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
         </div>
 
         <div className="mt-12 flex flex-col gap-5">
-          {projects.map((project, index) => (
-            <CaseStudyCard
-              key={project.slug}
-              project={project}
-              index={index}
-              locale={locale}
-              labels={t}
-            />
-          ))}
+          {projects.length ? (
+            projects.map((project, index) => (
+              <CaseStudyCard
+                key={project.slug}
+                project={project}
+                index={index}
+                locale={locale}
+                labels={t}
+              />
+            ))
+          ) : (
+            <p className="rounded-xl border border-border/60 bg-card/50 p-6 text-sm text-muted-foreground">
+              No projects published yet.
+            </p>
+          )}
         </div>
       </div>
     </section>

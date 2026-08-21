@@ -49,6 +49,15 @@ export const siteSettings = defineType({
       type: "string",
     }),
     defineField({
+      name: "resumeFile",
+      title: "Resume File",
+      description: "Upload your CV/resume file (PDF preferred).",
+      type: "file",
+      options: {
+        accept: ".pdf,.doc,.docx",
+      },
+    }),
+    defineField({
       name: "analyticsKey",
       title: "Analytics Key",
       type: "string",
